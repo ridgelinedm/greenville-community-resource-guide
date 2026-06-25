@@ -1,0 +1,449 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ResourceCard from '../../components/ResourceCard.astro';
+import {
+  RESOURCES,
+  getResource,
+  getCategory,
+  getAudience,
+  resourcesInCategory,
+  validIntents,
+  type Resource,
+} from '../../data/resources';
+import { AREA, AREA_SHORT } from '../../consts';
+import { link, absolute } from '../../utils/url';
+
+export function getStaticPaths() {
+  return RESOURCES.map((resource) => ({
+    params: { slug: resource.slug },
+    props: { resource },
+  }));
+}
+
+interface Props {
+  resource: Resource;
+}
+const { resource } = Astro.props;
+const primary = getCategory(resource.categories[0]);
+
+// Cross-links to intent pages this org appears on.
+const intentKeys = new Set(validIntents().map((i) => `${i.category.key}:${i.audience.key}`));
+const intentLinks = resource.categories
+  .map((c) => getCategory(c))
+  .filter((c) => c && c.core)
+  .flatMap((cat) =>
+    resource.audiences
+      .filter((aud) => intentKeys.has(`${cat!.key}:${aud}`))
+      .map((aud) => {
+        const a = getAudience(aud)!;
+        return { href: `/${cat!.slug}/${a.slug}`, label: `${cat!.label} for ${a.label}` };
+      })
+  )
+  .slice(0, 8);
+
+const related = primary
+  ? resourcesInCategory(primary.key).filter((r) => r.slug !== resource.slug).slice(0, 3)
+  : [];
+
+const origin = Astro.site?.origin ?? '';
+const title = `${resource.name} — ${AREA_SHORT}`;
+const description =
+  resource.description ||
+  `${resource.name} provides ${primary?.label.toLowerCase() ?? 'community'} services in ${AREA}.`;
+
+const orgSchema: Record<string, any> = {
+  '@context': 'https://schema.org',
+  '@type': resource.address ? 'LocalBusiness' : 'Organization',
+  name: resource.name,
+  description: resource.description || undefined,
+  url: absolute(origin, `/resource/${resource.slug}`),
+  areaServed: { '@type': 'AdministrativeArea', name: AREA },
+};
+if (resource.websiteUrl) orgSchema.sameAs = [resource.websiteUrl];
+if (resource.phones[0]) orgSchema.telephone = resource.phones[0].display;
+if (resource.email) orgSchema.email = resource.email;
+if (resource.address) {
+  orgSchema.address = { '@type': 'PostalAddress', streetAddress: resource.address };
+}
+if (resource.hours) orgSchema.openingHours = resource.hours;
+---
+
+<Base title={title} description={description} jsonLd={orgSchema}>
+  <div class="container res-top">
+    <Breadcrumbs
+      items={[
+        { label: 'Home', href: '/' },
+        ...(primary ? [{ label: primary.label, href: `/${primary.slug}` }] : []),
+        { label: resource.name },
+      ]}
+    />
+  </div>
+
+  <div class="container res-layout">
+    <article class="res-main">
+      <header class="res-head">
+        <div class="res-tags">
+          {
+            resource.categories.map((c) => {
+              const cat = getCategory(c);
+              return cat ? (
+                <a href={link(`/${cat.slug}`)} class="chip chip-sage">
+                  <Icon name={cat.icon} size={14} />
+                  {cat.label}
+                </a>
+              ) : null;
+            })
+          }
+        </div>
+        <h1>{resource.name}</h1>
+        {resource.description && <p class="lead res-desc">{resource.description}</p>}
+      </header>
+
+      <section class="res-section" aria-labelledby="serve-h">
+        <h2 id="serve-h">Who they serve</h2>
+        {
+          resource.servesEveryone && (
+            <p class="serve-everyone">
+              <Icon name="users" size={18} /> This organization welcomes everyone in need.
+            </p>
+          )
+        }
+        {
+          resource.serves.length > 0 ? (
+            <ul class="serve-list">
+              {resource.serves
+                .filter((s) => s.toLowerCase() !== 'serves everyone')
+                .map((s) => (
+                  <li class="serve-pill">{s}</li>
+                ))}
+            </ul>
+          ) : (
+            <p class="muted">Contact this organization to learn more about who they serve.</p>
+          )
+        }
+      </section>
+
+      {
+        intentLinks.length > 0 && (
+          <section class="res-section" aria-labelledby="intent-h">
+            <h2 id="intent-h">Pages this resource appears on</h2>
+            <p class="muted res-intent-note">
+              Looking for help for a specific situation? {resource.name} is featured on:
+            </p>
+            <ul class="intent-links">
+              {intentLinks.map((l) => (
+                <li>
+                  <a href={link(l.href)}>
+                    <Icon name="arrow-right" size={15} /> {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <p class="res-disclaimer">
+        <Icon name="info" size={18} />
+        <span>
+          Always call ahead to confirm hours, location, and eligibility — services can change.
+          If this information looks out of date, please let us know.
+        </span>
+      </p>
+    </article>
+
+    <aside class="res-aside">
+      <div class="contact-card">
+        <h2 class="contact-h">Contact</h2>
+
+        {
+          resource.phones.length > 0 && (
+            <div class="contact-block">
+              <span class="contact-label"><Icon name="phone" size={16} /> Phone</span>
+              <ul class="phone-list">
+                {resource.phones.map((p) => (
+                  <li>
+                    <a href={`tel:${p.tel}`} class="phone-link">
+                      {p.label && <span class="phone-tag">{p.label}</span>}
+                      {p.display}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+
+        {
+          resource.address && (
+            <div class="contact-block">
+              <span class="contact-label"><Icon name="map-pin" size={16} /> Address</span>
+              <p class="contact-text">{resource.address}</p>
+              <a href={resource.mapUrl!} target="_blank" rel="noopener" class="contact-ext">
+                Open in Maps <Icon name="external" size={14} />
+              </a>
+            </div>
+          )
+        }
+
+        {
+          resource.hours && (
+            <div class="contact-block">
+              <span class="contact-label"><Icon name="clock" size={16} /> Hours</span>
+              <p class="contact-text">{resource.hours}</p>
+            </div>
+          )
+        }
+
+        {
+          resource.websiteUrl && (
+            <div class="contact-block">
+              <span class="contact-label"><Icon name="external" size={16} /> Website</span>
+              <a href={resource.websiteUrl} target="_blank" rel="noopener" class="contact-ext">
+                {resource.website} <Icon name="external" size={14} />
+              </a>
+            </div>
+          )
+        }
+
+        {
+          resource.email && (
+            <div class="contact-block">
+              <span class="contact-label"><Icon name="mail" size={16} /> Email</span>
+              <a href={`mailto:${resource.email}`} class="contact-ext break">{resource.email}</a>
+            </div>
+          )
+        }
+
+        {
+          resource.phones[0] && (
+            <a href={`tel:${resource.phones[0].tel}`} class="btn btn-primary btn-block call-cta">
+              <Icon name="phone" size={18} /> Call {resource.phones[0].display}
+            </a>
+          )
+        }
+      </div>
+    </aside>
+  </div>
+
+  {
+    related.length > 0 && (
+      <section class="section-tight bg-soft related-section">
+        <div class="container">
+          <h2 class="related-h">More {primary?.label.toLowerCase()} resources</h2>
+          <div class="grid grid-3">
+            {related.map((r) => (
+              <ResourceCard resource={r} contextCategory={primary?.key} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .res-top {
+    padding-top: 1.25rem;
+  }
+  .res-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 2.5rem;
+    padding-block: 1.5rem 3rem;
+    align-items: start;
+  }
+  .res-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-bottom: 0.9rem;
+  }
+  .res-desc {
+    margin-top: 0.75rem;
+    max-width: 60ch;
+  }
+  .res-section {
+    margin-top: 2.25rem;
+  }
+  .res-section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.9rem;
+  }
+  .serve-everyone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--sage-50);
+    border: 1px solid var(--sage-100);
+    color: var(--sage-700);
+    font-weight: 600;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+  }
+  .serve-everyone :global(svg) {
+    color: var(--sage-600);
+  }
+  .serve-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .serve-pill {
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+    color: var(--blue-800);
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-full);
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+  .res-intent-note {
+    margin-bottom: 0.8rem;
+    margin-top: -0.3rem;
+  }
+  .intent-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .intent-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--blue-700);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .intent-links a:hover {
+    color: var(--blue-900);
+    text-decoration: underline;
+  }
+  .intent-links :global(svg) {
+    color: var(--sage-600);
+  }
+  .res-disclaimer {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 2.5rem;
+    padding: 1rem 1.15rem;
+    background: var(--blue-50);
+    border-radius: var(--radius);
+    color: var(--slate);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+  .res-disclaimer :global(svg) {
+    color: var(--blue-600);
+    flex: none;
+    margin-top: 2px;
+  }
+
+  .res-aside {
+    position: sticky;
+    top: 92px;
+  }
+  .contact-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+  }
+  .contact-h {
+    font-size: 1.15rem;
+    margin-bottom: 1.1rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .contact-block {
+    margin-bottom: 1.1rem;
+  }
+  .contact-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: var(--sage-700);
+    margin-bottom: 0.4rem;
+  }
+  .contact-label :global(svg) {
+    color: var(--sage-600);
+  }
+  .phone-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .phone-link {
+    display: flex;
+    flex-direction: column;
+    color: var(--blue-800);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .phone-link:hover {
+    color: var(--blue-600);
+  }
+  .phone-tag {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--slate-light);
+    font-weight: 600;
+  }
+  .contact-text {
+    color: var(--ink);
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+  .contact-ext {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--blue-700);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .contact-ext:hover {
+    text-decoration: underline;
+  }
+  .contact-ext.break {
+    word-break: break-all;
+  }
+  .call-cta {
+    margin-top: 0.5rem;
+  }
+  .related-section {
+    border-top: 1px solid var(--line);
+  }
+  .related-h {
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 880px) {
+    .res-layout {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+    .res-aside {
+      position: static;
+      order: -1;
+    }
+  }
+</style>

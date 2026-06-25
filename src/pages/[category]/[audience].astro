@@ -1,0 +1,329 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ResourceCard from '../../components/ResourceCard.astro';
+import CrisisLines from '../../components/CrisisLines.astro';
+import {
+  validIntents,
+  resourcesForIntent,
+  type Category,
+  type Audience,
+} from '../../data/resources';
+import { AREA_SHORT } from '../../consts';
+import { link, absolute } from '../../utils/url';
+
+export function getStaticPaths() {
+  return validIntents().map(({ category, audience, count }) => ({
+    params: { category: category.slug, audience: audience.slug },
+    props: { category, audience, count },
+  }));
+}
+
+interface Props {
+  category: Category;
+  audience: Audience;
+  count: number;
+}
+const { category, audience, count } = Astro.props;
+const resources = resourcesForIntent(category.key, audience.key);
+
+// Same audience, other core categories — for cross-linking.
+const related = validIntents().filter(
+  (i) => i.audience.key === audience.key && i.category.key !== category.key
+);
+
+const showCrisis =
+  audience.key === 'domestic-violence' ||
+  audience.key === 'substance-use' ||
+  category.key === 'mental-health';
+
+const catLower = category.label.toLowerCase();
+
+// ---- FAQ (rendered + JSON-LD FAQPage) ----
+const faqByCategory: Record<string, { q: string; a: string }> = {
+  food: {
+    q: 'Do I need to show ID or prove income to get food?',
+    a: `Most food pantries and meal sites in ${AREA_SHORT} serve anyone who comes, with little or no paperwork. Some may ask for basic information. If you don't have a photo ID, several organizations still serve you and can even help you get one.`,
+  },
+  housing: {
+    q: 'What should I do if I need shelter tonight?',
+    a: `Call the shelters listed here as early in the day as you can — beds often fill up fast. You can also dial 211 any time to be connected with available shelter. If you are fleeing domestic violence, call Safe Harbor's 24/7 line at 1-800-291-2139.`,
+  },
+  medical: {
+    q: 'Can I get medical care without insurance?',
+    a: `Yes. The free clinics and community health centers listed here treat uninsured and low-income patients at no cost or on a sliding scale based on income. Bring any ID or proof of income you have, but call first to ask what's needed.`,
+  },
+  'mental-health': {
+    q: 'What if I am in a mental-health crisis right now?',
+    a: `If you or someone else is in danger, call 911. For a mental-health crisis, call or text 988 any time, or reach SC Mobile Crisis at 1-833-364-2274. The organizations on this page provide ongoing counseling, support groups, and recovery services.`,
+  },
+};
+
+const faqs = [
+  {
+    q: `Where can ${audience.short} get ${catLower} in ${AREA_SHORT}?`,
+    a: `There ${count === 1 ? 'is' : 'are'} ${count} ${
+      count === 1 ? 'organization' : 'organizations'
+    } on this page that provide ${catLower} to ${audience.short} in Greenville County${
+      resources[0] ? `, including ${resources[0].name}` : ''
+    }${resources[1] ? ` and ${resources[1].name}` : ''}. Call ahead to confirm hours and eligibility before you go.`,
+  },
+  faqByCategory[category.key],
+  {
+    q: 'Is this help really free?',
+    a: `The organizations listed are free or low-cost. Services, hours, and eligibility can change, so please call ahead to confirm what's available before visiting.`,
+  },
+].filter(Boolean) as { q: string; a: string }[];
+
+const origin = Astro.site?.origin ?? '';
+const title = `${category.label} for ${audience.label} in ${AREA_SHORT}`;
+const description = `${audience.blurb} ${count} ${catLower} ${
+  count === 1 ? 'resource' : 'resources'
+} in Greenville County for ${audience.short}.`;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: title,
+    numberOfItems: resources.length,
+    itemListElement: resources.map((r, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: absolute(origin, `/resource/${r.slug}`),
+      name: r.name,
+    })),
+  },
+];
+---
+
+<Base title={title} description={description} jsonLd={jsonLd}>
+  <div class="container intent-top">
+    <Breadcrumbs
+      items={[
+        { label: 'Home', href: '/' },
+        { label: category.label, href: `/${category.slug}` },
+        { label: audience.label },
+      ]}
+    />
+  </div>
+
+  <section class="intent-hero">
+    <div class="container container-narrow">
+      <div class="intent-badge">
+        <Icon name={audience.icon} size={16} /> {audience.label}
+        <span aria-hidden="true">·</span>
+        <Icon name={category.icon} size={16} /> {category.label}
+      </div>
+      <h1>{category.label} for {audience.label} in {AREA_SHORT}</h1>
+      <p class="lead">{audience.blurb}</p>
+      <p class="intent-sub">
+        Below {count === 1 ? 'is' : 'are'} <strong>{count}</strong> {catLower}
+        {count === 1 ? 'resource' : 'resources'} in Greenville County ready to help. Tap
+        <strong>Call</strong> to reach them directly.
+      </p>
+    </div>
+  </section>
+
+  {
+    showCrisis && (
+      <div class="container container-narrow crisis-wrap">
+        <CrisisLines variant="compact" />
+      </div>
+    )
+  }
+
+  <section class="section-tight">
+    <div class="container">
+      <div class="grid grid-3">
+        {resources.map((r) => <ResourceCard resource={r} contextCategory={category.key} />)}
+      </div>
+    </div>
+  </section>
+
+  {
+    related.length > 0 && (
+      <section class="section-tight bg-sage">
+        <div class="container">
+          <h2 class="block-h">More help for {audience.label.toLowerCase()}</h2>
+          <ul class="related-list">
+            {related.map((i) => (
+              <li>
+                <a href={link(`/${i.category.slug}/${i.audience.slug}`)} class="related-chip">
+                  <Icon name={i.category.icon} size={18} />
+                  <span>
+                    <span class="related-cat">{i.category.label}</span>
+                    <span class="related-meta">for {audience.label.toLowerCase()}</span>
+                  </span>
+                  <Icon name="arrow-right" size={16} class="related-arrow" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section">
+    <div class="container container-narrow">
+      <h2 class="block-h">Frequently asked questions</h2>
+      <div class="faqs">
+        {
+          faqs.map((f) => (
+            <details class="faq">
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))
+        }
+      </div>
+
+      <div class="intent-foot">
+        <a href={link(`/${category.slug}`)} class="btn btn-outline">
+          <Icon name="arrow-right" size={16} /> See all {catLower} resources
+        </a>
+        <a href={link('/get-help-now')} class="btn btn-ghost">Need help right now?</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .intent-top {
+    padding-top: 1.25rem;
+  }
+  .intent-hero {
+    padding-block: 1.5rem 1.75rem;
+  }
+  .intent-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: var(--sage-50);
+    border: 1px solid var(--sage-100);
+    color: var(--sage-700);
+    border-radius: var(--radius-full);
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .intent-hero h1 {
+    max-width: 20ch;
+  }
+  .intent-hero .lead {
+    margin-top: 0.9rem;
+  }
+  .intent-sub {
+    margin-top: 0.8rem;
+    color: var(--slate);
+  }
+  .crisis-wrap {
+    margin-bottom: 0.25rem;
+  }
+  .block-h {
+    margin-bottom: 1.3rem;
+  }
+  .related-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.75rem;
+  }
+  .related-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #fff;
+    border: 1px solid var(--sage-100);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+    text-decoration: none;
+    color: var(--ink);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .related-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--sage-300);
+  }
+  .related-chip > :global(svg:first-child) {
+    color: var(--sage-600);
+    flex: none;
+  }
+  .related-cat {
+    display: block;
+    font-weight: 700;
+    color: var(--blue-900);
+    line-height: 1.2;
+  }
+  .related-meta {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--slate);
+  }
+  .related-arrow {
+    margin-left: auto;
+    color: var(--blue-500);
+  }
+  .faqs {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .faq {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #fff;
+    overflow: hidden;
+  }
+  .faq summary {
+    cursor: pointer;
+    padding: 1.05rem 1.25rem;
+    font-weight: 700;
+    color: var(--blue-900);
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+  }
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq summary::after {
+    content: '+';
+    font-size: 1.4rem;
+    color: var(--sage-600);
+    font-weight: 400;
+    line-height: 1;
+  }
+  .faq[open] summary::after {
+    content: '–';
+  }
+  .faq p {
+    padding: 0 1.25rem 1.2rem;
+    color: var(--slate);
+    margin: 0;
+  }
+  .intent-foot {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+</style>

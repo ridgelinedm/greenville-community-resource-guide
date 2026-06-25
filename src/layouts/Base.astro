@@ -1,0 +1,88 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { SITE_NAME, SITE_DESCRIPTION } from '../consts';
+import { link, absolute, stripBase } from '../utils/url';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Override canonical path; defaults to the current pathname. */
+  canonical?: string;
+  image?: string;
+  ogType?: string;
+  noindex?: boolean;
+  /** Append `| Greenville Community Resource Guide` to <title>. */
+  bareTitle?: boolean;
+  jsonLd?: Record<string, any> | Record<string, any>[];
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  canonical,
+  image = '/og-default.svg',
+  ogType = 'website',
+  noindex = false,
+  bareTitle = false,
+  jsonLd,
+} = Astro.props;
+
+const origin = Astro.site?.origin ?? '';
+// Astro.url.pathname may include the base prefix; strip then re-add canonically.
+const cleanPath = stripBase(canonical ?? Astro.url.pathname);
+const canonicalUrl = absolute(origin, cleanPath).replace(/(.+)\/$/, '$1');
+const fullTitle = bareTitle ? title : `${title} | ${SITE_NAME}`;
+const ogImage = image.startsWith('http') ? image : absolute(origin, image);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href={link('/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={link('/favicon.svg')} />
+    <meta name="theme-color" content="#14395b" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    {jsonLd && <JsonLd schema={jsonLd} />}
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to main content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

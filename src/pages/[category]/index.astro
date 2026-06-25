@@ -1,0 +1,317 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ResourceCard from '../../components/ResourceCard.astro';
+import CrisisLines from '../../components/CrisisLines.astro';
+import {
+  activeCategories,
+  resourcesInCategory,
+  intentsForCategory,
+  spokesForAudience,
+  getAudience,
+  CATEGORIES,
+  countInCategory,
+  type Category,
+} from '../../data/resources';
+import { AREA_SHORT } from '../../consts';
+import { link, absolute } from '../../utils/url';
+
+export function getStaticPaths() {
+  return activeCategories().map((category) => ({
+    params: { category: category.slug },
+    props: { category },
+  }));
+}
+
+interface Props {
+  category: Category;
+}
+const { category } = Astro.props;
+const resources = resourcesInCategory(category.key);
+const intents = intentsForCategory(category.key);
+const isCrisisCategory = category.key === 'mental-health' || category.key === 'housing';
+
+// Population categories (Veterans, Youth, …) link out to matching intent pages
+// across every service category — hub-and-spoke.
+const spokeAudience = category.population ? getAudience(category.population) : undefined;
+const spokes = category.population ? spokesForAudience(category.population) : [];
+
+const others = CATEGORIES.filter((c) => c.key !== category.key && countInCategory(c.key) > 0);
+
+const origin = Astro.site?.origin ?? '';
+const title = `${category.label} in ${AREA_SHORT}`;
+const description = `${category.intro} ${resources.length} local organizations, with phone numbers, addresses, and who they serve.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: title,
+  description: category.intro,
+  url: absolute(origin, `/${category.slug}`),
+  about: category.label,
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: resources.length,
+    itemListElement: resources.map((r, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: absolute(origin, `/resource/${r.slug}`),
+      name: r.name,
+    })),
+  },
+};
+---
+
+<Base title={title} description={description} jsonLd={jsonLd}>
+  <div class="container hub-top">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: category.label }]} />
+  </div>
+
+  <section class="hub-hero">
+    <div class="container">
+      <span class="hub-icon" aria-hidden="true"><Icon name={category.icon} size={32} /></span>
+      <h1>{category.label} in {AREA_SHORT}</h1>
+      <p class="lead hub-intro">{category.intro}</p>
+      <p class="hub-count">
+        <Icon name="check" size={16} /> {resources.length} local {resources.length === 1 ? 'organization' : 'organizations'}
+      </p>
+    </div>
+  </section>
+
+  {
+    isCrisisCategory && (
+      <div class="container container-narrow crisis-wrap">
+        <CrisisLines variant="compact" />
+      </div>
+    )
+  }
+
+  {
+    intents.length > 0 && (
+      <section class="section-tight bg-sage" aria-labelledby="intent-h">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="intent-h">Find {category.label.toLowerCase()} for your situation</h2>
+            <p>Dedicated pages for specific circumstances, so you reach the right help faster.</p>
+          </div>
+          <ul class="intent-list">
+            {intents.map((i) => (
+              <li>
+                <a href={link(`/${category.slug}/${i.audience.slug}`)} class="intent-chip">
+                  <Icon name={i.audience.icon} size={18} />
+                  <span>{i.audience.label}</span>
+                  <span class="intent-count">{i.count}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section" aria-labelledby="list-h">
+    <div class="container">
+      <h2 id="list-h" class="list-h">All {category.label.toLowerCase()} resources</h2>
+      <div class="grid grid-3">
+        {resources.map((r) => <ResourceCard resource={r} contextCategory={category.key} />)}
+      </div>
+    </div>
+  </section>
+
+  {
+    spokes.length > 0 && spokeAudience && (
+      <section class="section-tight bg-sage" aria-labelledby="spoke-h">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="spoke-h">More help for {spokeAudience.label.toLowerCase()}</h2>
+            <p>
+              {spokeAudience.label} can also get help in these areas — each page lists the
+              organizations ready to serve them.
+            </p>
+          </div>
+          <ul class="spoke-list">
+            {spokes.map((s) => (
+              <li>
+                <a href={link(`/${s.category.slug}/${s.audience.slug}`)} class="spoke-card">
+                  <span class="spoke-icon">
+                    <Icon name={s.category.icon} size={20} />
+                  </span>
+                  <span class="spoke-text">
+                    <span class="spoke-cat">{s.category.label}</span>
+                    <span class="spoke-meta">
+                      for {spokeAudience.label.toLowerCase()} · {s.count} resources
+                    </span>
+                  </span>
+                  <Icon name="arrow-right" size={16} class="spoke-arrow" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section-tight bg-soft" aria-labelledby="other-h">
+    <div class="container">
+      <h2 id="other-h" class="list-h">Explore other types of help</h2>
+      <ul class="other-cats">
+        {
+          others.map((c) => (
+            <li>
+              <a href={link(`/${c.slug}`)} class="chip chip-sage">
+                <Icon name={c.icon} size={15} />
+                {c.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hub-top {
+    padding-top: 1.25rem;
+  }
+  .hub-hero {
+    padding-block: 1.5rem 2.25rem;
+  }
+  .hub-icon {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: linear-gradient(150deg, var(--blue-50), var(--sage-50));
+    color: var(--blue-700);
+    border: 1px solid var(--sage-100);
+    margin-bottom: 1rem;
+  }
+  .hub-intro {
+    max-width: 64ch;
+    margin-top: 0.75rem;
+  }
+  .hub-count {
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    color: var(--sage-700);
+  }
+  .crisis-wrap {
+    margin-bottom: 0.5rem;
+  }
+  .intent-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+  .intent-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: #fff;
+    border: 1px solid var(--sage-100);
+    border-radius: var(--radius-full);
+    padding: 0.6rem 0.7rem 0.6rem 1.05rem;
+    text-decoration: none;
+    color: var(--blue-900);
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .intent-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--sage-300);
+    color: var(--blue-900);
+  }
+  .intent-chip :global(svg) {
+    color: var(--sage-600);
+  }
+  .intent-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding-inline: 0.4rem;
+    border-radius: var(--radius-full);
+    background: var(--sage-100);
+    color: var(--sage-700);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .list-h {
+    margin-bottom: 1.5rem;
+  }
+  .other-cats {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .spoke-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.75rem;
+  }
+  .spoke-card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    background: #fff;
+    border: 1px solid var(--sage-100);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+    text-decoration: none;
+    color: var(--ink);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .spoke-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--sage-300);
+  }
+  .spoke-icon {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--sage-50);
+    color: var(--sage-700);
+    flex: none;
+  }
+  .spoke-text {
+    flex: 1;
+  }
+  .spoke-cat {
+    display: block;
+    font-weight: 700;
+    color: var(--blue-900);
+    line-height: 1.2;
+  }
+  .spoke-meta {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--slate);
+  }
+  .spoke-arrow {
+    color: var(--blue-500);
+    flex: none;
+  }
+</style>

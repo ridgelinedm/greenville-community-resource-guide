@@ -1,0 +1,80 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { RESOURCES, activeCategories, validIntents } from '../data/resources';
+import { link } from '../utils/url';
+import { SITE_NAME, AREA } from '../consts';
+
+const title = 'About This Guide';
+const description = `How the ${SITE_NAME} works: a free, organized directory of ${RESOURCES.length} community resources in ${AREA}, built so anyone can find help for their exact situation.`;
+const catCount = activeCategories().length;
+const intentCount = validIntents().length;
+---
+
+<Base title={title} description={description}>
+  <div class="container about-top">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+  </div>
+
+  <section class="section">
+    <div class="container container-narrow prose">
+      <h1>About this guide</h1>
+      <p class="lead">
+        The {SITE_NAME} is a free, easy-to-use directory that connects neighbors in {AREA}
+        to the help they need — food, housing, health care, mental-health support, and more.
+      </p>
+
+      <h2>Why we built it</h2>
+      <p>
+        When you are facing a hard moment, you shouldn't have to dig through dozens of websites
+        or know the exact name of an agency to get help. This guide brings
+        <strong>{RESOURCES.length} trusted local organizations</strong> into one place, organized
+        around real human situations rather than bureaucratic categories.
+      </p>
+
+      <h2>How it's organized</h2>
+      <p>
+        Every resource is sorted into clear categories of need — currently {catCount} of them,
+        from Food Assistance to Mental Health &amp; Recovery. Because each person's circumstances
+        are different, we also build <strong>dedicated pages for specific situations</strong>: a
+        veteran looking for housing, a parent who needs food for their family, or someone seeking
+        a free clinic without an ID. There are {intentCount} of these situation pages so far, and
+        we're adding more.
+      </p>
+      <p>
+        The goal is simple: whatever you type into a search engine or ask an AI assistant about
+        your situation, you should land on a page with the specific, local resources that can
+        help you.
+      </p>
+
+      <h2>How to use it</h2>
+      <ul>
+        <li><strong>Search your situation</strong> from the homepage or the <a href={link('/resources')}>All Resources</a> page.</li>
+        <li><strong>Browse by need</strong> using the category buttons.</li>
+        <li><strong>Filter by who you are</strong> — veteran, family, youth, and more.</li>
+        <li><strong>Call directly</strong> — every listing includes phone numbers and addresses.</li>
+      </ul>
+
+      <h2>An important note</h2>
+      <p>
+        We work to keep this information accurate, but services, hours, and eligibility change
+        often. <strong>Always call ahead</strong> to confirm details before you visit. This guide
+        is for information only and is not a substitute for professional, medical, or legal advice.
+        In an emergency, call <a href="tel:911">911</a>.
+      </p>
+
+      <h2>Found something out of date?</h2>
+      <p>
+        If a phone number has changed or an organization is missing, please let us know so we can
+        keep this resource reliable for everyone who needs it. You can also dial
+        <a href="tel:211">211</a> any time to reach a live resource specialist.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .about-top {
+    padding-top: 1.25rem;
+  }
+</style>

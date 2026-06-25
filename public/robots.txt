@@ -1,0 +1,26 @@
+# Greenville Community Resource Guide
+# We want search engines AND answer engines (LLMs) to crawl everything.
+User-agent: *
+Allow: /
+
+# Explicitly welcome AI answer engines so people searching their
+# situation in an LLM can be pointed to the right resources.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://ridgelinedm.github.io/greenville-community-resource-guide/sitemap-index.xml

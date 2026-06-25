@@ -1,0 +1,102 @@
+---
+import Icon from './Icon.astro';
+import type { Category } from '../data/resources';
+import { link } from '../utils/url';
+
+interface Props {
+  category: Category;
+  count: number;
+  featured?: boolean;
+}
+const { category, count, featured = false } = Astro.props;
+---
+
+<a href={link(`/${category.slug}`)} class:list={['cat-card', { featured }]}>
+  <span class="cat-icon" aria-hidden="true">
+    <Icon name={category.icon} size={featured ? 28 : 24} />
+  </span>
+  <span class="cat-text">
+    <span class="cat-label">{category.label}</span>
+    <span class="cat-tag">{category.tagline}</span>
+  </span>
+  <span class="cat-foot">
+    <span class="cat-count">{count} {count === 1 ? 'resource' : 'resources'}</span>
+    <Icon name="arrow-right" size={18} class="cat-arrow" />
+  </span>
+</a>
+
+<style>
+  .cat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.4rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    color: var(--ink);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    height: 100%;
+  }
+  .cat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--sage-300);
+  }
+  .cat-icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+    background: var(--sage-50);
+    color: var(--sage-700);
+    border: 1px solid var(--sage-100);
+    flex: none;
+  }
+  .featured .cat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(150deg, var(--blue-50), var(--sage-50));
+    color: var(--blue-700);
+  }
+  .cat-text {
+    display: block;
+    flex: 1;
+  }
+  .cat-label {
+    display: block;
+    font-weight: 700;
+    font-size: 1.18rem;
+    color: var(--blue-900);
+    letter-spacing: -0.01em;
+  }
+  .cat-tag {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--slate);
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+  .cat-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 0.4rem;
+  }
+  .cat-count {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--sage-700);
+  }
+  .cat-arrow {
+    color: var(--blue-500);
+    transition: transform 0.18s ease;
+  }
+  .cat-card:hover .cat-arrow {
+    transform: translateX(3px);
+  }
+</style>

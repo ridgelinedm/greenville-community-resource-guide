@@ -1,0 +1,90 @@
+---
+/**
+ * Inline SVG icon set (Lucide-style, currentColor stroke).
+ * Usage: <Icon name="food" /> — size via the `size` prop or CSS width/height.
+ */
+interface Props {
+  name: string;
+  size?: number | string;
+  class?: string;
+  label?: string; // when set, icon is exposed to AT; otherwise aria-hidden
+}
+const { name, size = 24, class: cls = '', label } = Astro.props;
+
+const P: Record<string, string> = {
+  // Category icons
+  food: '<path d="M4 11h16a8 8 0 0 1-16 0Z"/><path d="M2 11h20"/><path d="M9 6c.4-1 .4-2 0-3"/><path d="M13 6c.4-1 .4-2 0-3"/>',
+  housing:
+    '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/><path d="M9.5 21v-6h5v6"/>',
+  medical: '<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 8v8"/><path d="M8 12h8"/>',
+  'mental-health':
+    '<path d="M19 14c1.4-1.4 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.6 4.1 3 5.5l7 7Z"/><path d="M2.6 11.5H8l1.5-3 2.5 5 1.5-2h4.4"/>',
+  financial:
+    '<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11"/><path d="M14.6 9.2a2.4 2 0 0 0-2.6-1.4 2 2 0 0 0-.2 4h1.4a2 2 0 0 1 .2 4 2.4 2 0 0 1-2.6-1.4"/>',
+  legal:
+    '<path d="M12 3v18"/><path d="M7 21h10"/><path d="M5 7h14"/><path d="M5 7 3 12a3 3 0 0 0 6 0L7 7"/><path d="m17 7-2 5a3 3 0 0 0 6 0l-2-5"/>',
+  transportation:
+    '<rect x="4" y="4" width="16" height="13" rx="2"/><path d="M4 11h16"/><circle cx="8" cy="17" r="1.4"/><circle cx="16" cy="17" r="1.4"/>',
+  reentry:
+    '<path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h20"/><path d="M14 20V4L6 6.5V20"/><path d="M10.5 12h.01"/>',
+  veterans:
+    '<circle cx="12" cy="8.5" r="4.5"/><path d="M9 12.4 7.5 21l4.5-2.3L16.5 21 15 12.4"/><path d="m12 6 .7 1.4 1.5.2-1.1 1 .3 1.5L12 9.4l-1.4.7.3-1.5-1.1-1 1.5-.2Z"/>',
+  youth:
+    '<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5s1.4 2 3.5 2 3.5-2 3.5-2"/><path d="M9 9.5h.01"/><path d="M15 9.5h.01"/>',
+  family:
+    '<circle cx="8" cy="8" r="3"/><path d="M2.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.3"/><path d="M15.5 14.4A5 5 0 0 1 21.5 19"/>',
+  hiv:
+    '<path d="M9 9c-1-1.4-1-3.4 0-4.8a3 3 0 0 1 6 0c1 1.4 1 3.4 0 4.8"/><path d="m9 9 6 11"/><path d="M15 9 9 20"/>',
+  immigrant:
+    '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z"/>',
+  education:
+    '<path d="m22 9-10-4L2 9l10 4 10-4Z"/><path d="M6 11v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5"/><path d="M22 9v5.5"/>',
+  community:
+    '<path d="M3 21h18"/><path d="M5 21V10"/><path d="M9 21V10"/><path d="M15 21V10"/><path d="M19 21V10"/><path d="m12 3 8 5H4l8-5Z"/>',
+
+  // UI icons
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20.5 20.5-3.6-3.6"/>',
+  phone:
+    '<path d="M5 4h3.5l1.8 4.5L8 10.2a10 10 0 0 0 5 5l1.7-2.3L19 14.7V18a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2Z"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7.5 8.5 6 8.5-6"/>',
+  'map-pin': '<path d="M20 10.5c0 5.5-8 11-8 11s-8-5.5-8-11a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10.5" r="2.8"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 1.8"/>',
+  external:
+    '<path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M19 13.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5.5"/>',
+  'arrow-right': '<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>',
+  'chevron-right': '<path d="m9.5 5 6.5 7-6.5 7"/>',
+  alert: '<path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 10v4.5"/><path d="M12 17.5h.01"/>',
+  heart: '<path d="M12 20.5 4.6 13.1a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 1 1 6.5 6.5Z"/>',
+  shield: '<path d="M12 3 5 6v5.5c0 4 3 6.6 7 8 4-1.4 7-4 7-8V6Z"/><path d="m9 11.5 2 2 4-4"/>',
+  users:
+    '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16.5 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 13.4a6.5 6.5 0 0 1 3.5 6.1"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6h.01"/>',
+  sparkles:
+    '<path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/><path d="m19 14 .7 1.9 1.8.6-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.6Z"/>',
+  menu: '<path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/>',
+  x: '<path d="M5 5 19 19"/><path d="M19 5 5 19"/>',
+  check: '<path d="m4 12 5 5L20 6.5"/>',
+  filter: '<path d="M3 5h18"/><path d="M6 12h12"/><path d="M10 19h4"/>',
+  'book-open':
+    '<path d="M12 6.5C10.5 5 8 4.5 4 4.5V18c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2V4.5c-4 0-6.5.5-8 2Z"/><path d="M12 6.5V20"/>',
+};
+
+const inner = P[name] ?? P['info'];
+const dim = typeof size === 'number' ? `${size}` : size;
+const a11y = label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' };
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={dim}
+  height={dim}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.9"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={cls}
+  {...a11y}
+  set:html={inner}
+/>

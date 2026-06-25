@@ -1,0 +1,351 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ResourceCard from '../components/ResourceCard.astro';
+import { RESOURCES, activeCategories, AUDIENCES, getCategory } from '../data/resources';
+import { AREA } from '../consts';
+
+const cats = activeCategories();
+const items = RESOURCES.map((r) => ({
+  resource: r,
+  cats: r.categories.join(' '),
+  auds: r.audiences.join(' '),
+  text: [
+    r.name,
+    r.description,
+    r.serves.join(' '),
+    r.address ?? '',
+    r.categories.map((c) => getCategory(c)?.label ?? '').join(' '),
+  ]
+    .join(' ')
+    .toLowerCase(),
+}));
+
+const title = `All Resources — Search Free Help in ${AREA}`;
+const description = `Search and filter all ${RESOURCES.length} community resources in Greenville County by need and situation — food, housing, medical care, mental health, and more.`;
+---
+
+<Base title={title} description={description}>
+  <div class="container res-top">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'All Resources' }]} />
+  </div>
+
+  <section class="dir-hero">
+    <div class="container">
+      <h1>All Greenville resources</h1>
+      <p class="lead">
+        Search all {RESOURCES.length} organizations, or filter by the type of help you need and
+        your situation.
+      </p>
+
+      <div class="dir-search">
+        <Icon name="search" size={22} class="dir-search-icon" />
+        <label for="dir-q" class="sr-only">Search resources</label>
+        <input
+          id="dir-q"
+          type="search"
+          placeholder="Search by name, need, or situation…"
+          autocomplete="off"
+        />
+        <button type="button" id="dir-clear" class="dir-clear" hidden>
+          <Icon name="x" size={18} /><span class="sr-only">Clear search</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container">
+      <div class="filters">
+        <div class="filter-group">
+          <span class="filter-title"><Icon name="filter" size={15} /> Type of help</span>
+          <div class="filter-chips" data-group="category">
+            {
+              cats.map((c) => (
+                <button class="fchip" data-value={c.key} type="button">
+                  <Icon name={c.icon} size={14} />
+                  {c.label}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-title"><Icon name="users" size={15} /> Situation</span>
+          <div class="filter-chips" data-group="audience">
+            {
+              AUDIENCES.map((a) => (
+                <button class="fchip" data-value={a.key} type="button">
+                  {a.label}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="dir-status">
+        <p id="dir-count" aria-live="polite">Showing all {RESOURCES.length} resources</p>
+        <button type="button" id="dir-reset" class="btn btn-ghost" hidden>Reset filters</button>
+      </div>
+
+      <div class="grid grid-3" id="dir-results">
+        {
+          items.map((it) => (
+            <div class="result" data-cats={it.cats} data-auds={it.auds} data-text={it.text}>
+              <ResourceCard resource={it.resource} />
+            </div>
+          ))
+        }
+      </div>
+
+      <div id="dir-empty" class="dir-empty" hidden>
+        <Icon name="search" size={32} />
+        <h2>No resources match your search</h2>
+        <p>Try fewer words or remove a filter. You can also call <a href="tel:211">211</a> to speak with someone who can help.</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .res-top {
+    padding-top: 1.25rem;
+  }
+  .dir-hero {
+    padding-block: 1.5rem 2rem;
+  }
+  .dir-hero .lead {
+    margin-top: 0.6rem;
+    max-width: 60ch;
+  }
+  .dir-search {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #fff;
+    border: 1.5px solid var(--line-strong);
+    border-radius: var(--radius-full);
+    padding: 0.35rem 0.9rem;
+    box-shadow: var(--shadow-sm);
+    max-width: 620px;
+  }
+  .dir-search:focus-within {
+    border-color: var(--blue-500);
+    box-shadow: var(--shadow);
+  }
+  .dir-search-icon {
+    color: var(--slate-light);
+    flex: none;
+  }
+  .dir-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font: inherit;
+    font-size: 1.02rem;
+    padding: 0.6rem 0;
+    background: transparent;
+    min-width: 0;
+  }
+  .dir-clear {
+    border: none;
+    background: var(--blue-50);
+    color: var(--blue-700);
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-full);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    flex: none;
+  }
+  .filters {
+    display: grid;
+    gap: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+  .filter-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: var(--slate);
+    margin-bottom: 0.6rem;
+  }
+  .filter-title :global(svg) {
+    color: var(--sage-600);
+  }
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .fchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    color: var(--slate);
+    border-radius: var(--radius-full);
+    padding: 0.45rem 0.95rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .fchip:hover {
+    border-color: var(--sage-300);
+    color: var(--blue-800);
+  }
+  .fchip[aria-pressed='true'] {
+    background: var(--blue-700);
+    border-color: var(--blue-700);
+    color: #fff;
+  }
+  .fchip[aria-pressed='true'] :global(svg) {
+    color: #fff;
+  }
+  .fchip :global(svg) {
+    color: var(--sage-600);
+  }
+  .dir-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  #dir-count {
+    font-weight: 600;
+    color: var(--slate);
+  }
+  .result {
+    display: flex;
+  }
+  .result > :global(*) {
+    width: 100%;
+  }
+  .dir-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--slate);
+  }
+  .dir-empty :global(svg) {
+    color: var(--slate-light);
+    margin: 0 auto 1rem;
+  }
+  .dir-empty h2 {
+    margin-bottom: 0.5rem;
+  }
+</style>
+
+<script>
+  const q = document.getElementById('dir-q') as HTMLInputElement;
+  const clearBtn = document.getElementById('dir-clear') as HTMLButtonElement;
+  const resetBtn = document.getElementById('dir-reset') as HTMLButtonElement;
+  const countEl = document.getElementById('dir-count') as HTMLElement;
+  const emptyEl = document.getElementById('dir-empty') as HTMLElement;
+  const resultsEl = document.getElementById('dir-results') as HTMLElement;
+  const results = Array.from(document.querySelectorAll<HTMLElement>('.result'));
+  const total = results.length;
+
+  const state = { q: '', category: '', audience: '' };
+
+  function apply() {
+    const tokens = state.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    for (const el of results) {
+      const text = el.dataset.text || '';
+      const cats = (el.dataset.cats || '').split(' ');
+      const auds = (el.dataset.auds || '').split(' ');
+      const matchText = tokens.every((t) => text.includes(t));
+      const matchCat = !state.category || cats.includes(state.category);
+      const matchAud = !state.audience || auds.includes(state.audience);
+      const visible = matchText && matchCat && matchAud;
+      el.hidden = !visible;
+      if (visible) shown++;
+    }
+    const filtering = tokens.length || state.category || state.audience;
+    countEl.textContent = filtering
+      ? `Showing ${shown} of ${total} resources`
+      : `Showing all ${total} resources`;
+    emptyEl.hidden = shown !== 0;
+    resultsEl.hidden = shown === 0;
+    clearBtn.hidden = !state.q;
+    resetBtn.hidden = !filtering;
+  }
+
+  function syncUrl() {
+    const p = new URLSearchParams();
+    if (state.q) p.set('q', state.q);
+    if (state.category) p.set('category', state.category);
+    if (state.audience) p.set('audience', state.audience);
+    const qs = p.toString();
+    history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+  }
+
+  q.addEventListener('input', () => {
+    state.q = q.value;
+    apply();
+    syncUrl();
+  });
+  clearBtn.addEventListener('click', () => {
+    q.value = '';
+    state.q = '';
+    q.focus();
+    apply();
+    syncUrl();
+  });
+
+  document.querySelectorAll<HTMLElement>('.filter-chips').forEach((group) => {
+    const key = group.dataset.group as 'category' | 'audience';
+    group.querySelectorAll<HTMLButtonElement>('.fchip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const val = chip.dataset.value || '';
+        const isActive = state[key] === val;
+        group.querySelectorAll('.fchip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
+        state[key] = isActive ? '' : val;
+        if (!isActive) chip.setAttribute('aria-pressed', 'true');
+        apply();
+        syncUrl();
+      });
+    });
+  });
+
+  resetBtn.addEventListener('click', () => {
+    state.q = '';
+    state.category = '';
+    state.audience = '';
+    q.value = '';
+    document.querySelectorAll('.fchip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
+    apply();
+    syncUrl();
+  });
+
+  // Initialize from URL (?q= / ?category= / ?audience=)
+  (function init() {
+    const p = new URLSearchParams(location.search);
+    state.q = p.get('q') || '';
+    state.category = p.get('category') || '';
+    state.audience = p.get('audience') || '';
+    q.value = state.q;
+    if (state.category) {
+      document
+        .querySelector(`.filter-chips[data-group="category"] .fchip[data-value="${state.category}"]`)
+        ?.setAttribute('aria-pressed', 'true');
+    }
+    if (state.audience) {
+      document
+        .querySelector(`.filter-chips[data-group="audience"] .fchip[data-value="${state.audience}"]`)
+        ?.setAttribute('aria-pressed', 'true');
+    }
+    apply();
+  })();
+</script>

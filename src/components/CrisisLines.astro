@@ -1,0 +1,115 @@
+---
+import Icon from './Icon.astro';
+import { CRISIS_LINES } from '../consts';
+
+interface Props {
+  variant?: 'full' | 'compact';
+  title?: string;
+}
+const { variant = 'full', title = 'In crisis or in danger? Get help right now.' } = Astro.props;
+---
+
+<section class:list={['crisis', variant]} aria-label="Emergency and crisis hotlines">
+  <div class="crisis-head">
+    <span class="crisis-icon" aria-hidden="true"><Icon name="alert" size={20} /></span>
+    <p class="crisis-title">{title}</p>
+  </div>
+  <ul class="crisis-list">
+    {
+      CRISIS_LINES.map((line) => (
+        <li>
+          <a href={`tel:${line.tel}`} class="crisis-card">
+            <span class="crisis-label">{line.label}</span>
+            <span class="crisis-number">
+              <Icon name="phone" size={16} /> {line.number}
+            </span>
+            <span class="crisis-note">{line.note}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .crisis {
+    background: var(--alert-bg);
+    border: 1px solid var(--alert-border);
+    border-radius: var(--radius-lg);
+    padding: 1.4rem 1.5rem 1.5rem;
+  }
+  .crisis-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+  .crisis-icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--alert);
+    color: #fff;
+    flex: none;
+  }
+  .crisis-title {
+    font-weight: 700;
+    color: var(--alert-dark);
+    font-size: 1.05rem;
+  }
+  .crisis-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0.75rem;
+  }
+  .crisis-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    background: #fff;
+    border: 1px solid var(--alert-border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    text-decoration: none;
+    height: 100%;
+    transition: box-shadow 0.15s ease, transform 0.1s ease;
+  }
+  .crisis-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+  }
+  .crisis-label {
+    font-size: 0.82rem;
+    color: var(--slate);
+    font-weight: 600;
+  }
+  .crisis-number {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--alert-dark);
+    letter-spacing: -0.01em;
+  }
+  .crisis-note {
+    font-size: 0.8rem;
+    color: var(--slate-light);
+  }
+  .crisis.compact {
+    padding: 1rem 1.1rem;
+    border-radius: var(--radius);
+  }
+  .crisis.compact .crisis-list {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0.5rem;
+  }
+  .crisis.compact .crisis-number {
+    font-size: 1.1rem;
+  }
+</style>

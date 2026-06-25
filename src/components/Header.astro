@@ -1,0 +1,189 @@
+---
+import Icon from './Icon.astro';
+import { SITE_NAME } from '../consts';
+import { CORE_CATEGORIES } from '../data/resources';
+import { link, stripBase } from '../utils/url';
+
+const path = stripBase(Astro.url.pathname);
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href={link('/')} class="brand" aria-label={`${SITE_NAME} — home`}>
+      <span class="brand-mark" aria-hidden="true">
+        <Icon name="heart" size={20} />
+      </span>
+      <span class="brand-text">
+        <span class="brand-name">Greenville</span>
+        <span class="brand-sub">Community Resource Guide</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" aria-label="Primary">
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+        <Icon name="menu" size={22} />
+        <span class="sr-only">Menu</span>
+      </button>
+      <ul id="nav-list" class="nav-list">
+        {
+          CORE_CATEGORIES.map((c) => (
+            <li>
+              <a href={link(`/${c.slug}`)} class:list={['nav-link', { active: isActive(`/${c.slug}`) }]}>
+                {c.nav ?? c.label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href={link('/resources')} class:list={['nav-link', { active: isActive('/resources') }]}>
+            All Resources
+          </a>
+        </li>
+        <li class="nav-cta">
+          <a href={link('/get-help-now')} class="btn btn-sage">
+            <Icon name="phone" size={18} /> Get help now
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: saturate(180%) blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 72px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    text-decoration: none;
+    color: var(--blue-900);
+  }
+  .brand-mark {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(150deg, var(--blue-700), var(--sage-600));
+    color: #fff;
+    box-shadow: var(--shadow-sm);
+    flex: none;
+  }
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+  .brand-name {
+    font-weight: 800;
+    font-size: 1.12rem;
+    letter-spacing: -0.02em;
+    color: var(--blue-900);
+  }
+  .brand-sub {
+    font-size: 0.78rem;
+    color: var(--slate);
+    font-weight: 500;
+  }
+  .nav-list {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-link {
+    display: inline-block;
+    padding: 0.5rem 0.7rem;
+    border-radius: var(--radius-sm);
+    color: var(--slate);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .nav-link:hover {
+    background: var(--blue-50);
+    color: var(--blue-800);
+  }
+  .nav-link.active {
+    color: var(--blue-800);
+    background: var(--blue-50);
+  }
+  .nav-cta {
+    margin-left: 0.4rem;
+  }
+  .nav-cta .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.92rem;
+  }
+  .nav-toggle {
+    display: none;
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem;
+    color: var(--blue-800);
+    cursor: pointer;
+  }
+
+  @media (max-width: 900px) {
+    .nav-toggle {
+      display: inline-flex;
+    }
+    .nav-list {
+      position: absolute;
+      top: 72px;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.15rem;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      box-shadow: var(--shadow-md);
+      padding: 0.75rem 1.25rem 1.1rem;
+      display: none;
+    }
+    .nav-list.open {
+      display: flex;
+    }
+    .nav-link {
+      padding: 0.75rem 0.7rem;
+      font-size: 1.02rem;
+    }
+    .nav-cta {
+      margin: 0.4rem 0 0;
+    }
+    .nav-cta .btn {
+      width: 100%;
+      justify-content: center;
+      padding: 0.8rem 1rem;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector('.nav-toggle');
+  const list = document.getElementById('nav-list');
+  toggle?.addEventListener('click', () => {
+    const open = list?.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+</script>

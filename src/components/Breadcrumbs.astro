@@ -1,0 +1,73 @@
+---
+import Icon from './Icon.astro';
+import JsonLd from './JsonLd.astro';
+import { link, absolute } from '../utils/url';
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+interface Props {
+  items: Crumb[];
+}
+const { items } = Astro.props;
+const origin = Astro.site?.origin ?? '';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.label,
+    ...(c.href ? { item: absolute(origin, c.href) } : {}),
+  })),
+};
+---
+
+<nav class="crumbs" aria-label="Breadcrumb">
+  <ol>
+    {
+      items.map((c, i) => (
+        <li>
+          {c.href ? <a href={link(c.href)}>{c.label}</a> : <span aria-current="page">{c.label}</span>}
+          {i < items.length - 1 && <Icon name="chevron-right" size={14} class="sep" />}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+<JsonLd schema={schema} />
+
+<style>
+  .crumbs ol {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+    font-size: 0.88rem;
+  }
+  .crumbs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .crumbs a {
+    color: var(--slate);
+    text-decoration: none;
+  }
+  .crumbs a:hover {
+    color: var(--blue-700);
+    text-decoration: underline;
+  }
+  .crumbs [aria-current='page'] {
+    color: var(--blue-900);
+    font-weight: 600;
+  }
+  .crumbs .sep {
+    color: var(--slate-light);
+  }
+</style>

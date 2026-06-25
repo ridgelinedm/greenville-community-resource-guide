@@ -1,0 +1,165 @@
+---
+import Icon from './Icon.astro';
+import { getCategory, type Resource } from '../data/resources';
+import { link } from '../utils/url';
+
+interface Props {
+  resource: Resource;
+  /** Category context (e.g. the hub/intent page) shown first in the chip row. */
+  contextCategory?: string;
+}
+const { resource, contextCategory } = Astro.props;
+const primaryPhone = resource.phones[0];
+
+// Order chips so the page's category appears first.
+const cats = [...resource.categories].sort((a, b) =>
+  a === contextCategory ? -1 : b === contextCategory ? 1 : 0
+);
+---
+
+<article class="rcard">
+  <div class="rcard-body">
+    <div class="rcard-tags">
+      {
+        cats.slice(0, 3).map((c) => {
+          const cat = getCategory(c);
+          return cat ? (
+            <span class:list={['chip', 'chip-sage', { 'chip-on': c === contextCategory }]}>
+              <Icon name={cat.icon} size={14} />
+              {cat.label}
+            </span>
+          ) : null;
+        })
+      }
+    </div>
+
+    <h3 class="rcard-name">
+      <a href={link(`/resource/${resource.slug}`)}>{resource.name}</a>
+    </h3>
+
+    {resource.description && <p class="rcard-desc">{resource.description}</p>}
+
+    <dl class="rcard-meta">
+      {
+        resource.address && (
+          <div class="meta-row">
+            <Icon name="map-pin" size={16} />
+            <dd>{resource.address}</dd>
+          </div>
+        )
+      }
+      {
+        resource.hours && (
+          <div class="meta-row">
+            <Icon name="clock" size={16} />
+            <dd>{resource.hours}</dd>
+          </div>
+        )
+      }
+      {
+        resource.servesEveryone && (
+          <div class="meta-row">
+            <Icon name="users" size={16} />
+            <dd>Open to everyone</dd>
+          </div>
+        )
+      }
+    </dl>
+  </div>
+
+  <div class="rcard-actions">
+    {
+      primaryPhone ? (
+        <a class="btn btn-primary btn-sm" href={`tel:${primaryPhone.tel}`}>
+          <Icon name="phone" size={16} /> Call
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    <a class="btn btn-outline btn-sm" href={link(`/resource/${resource.slug}`)}>
+      Details <Icon name="arrow-right" size={16} />
+    </a>
+  </div>
+</article>
+
+<style>
+  .rcard {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+  }
+  .rcard:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--line-strong);
+  }
+  .rcard-body {
+    padding: 1.25rem 1.25rem 0.5rem;
+    flex: 1;
+  }
+  .rcard-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.7rem;
+  }
+  .chip-on {
+    background: var(--sage-100);
+    border-color: var(--sage-300);
+    color: var(--sage-700);
+  }
+  .rcard-name {
+    font-size: 1.18rem;
+    line-height: 1.25;
+    margin-bottom: 0.45rem;
+  }
+  .rcard-name a {
+    color: var(--blue-900);
+    text-decoration: none;
+  }
+  .rcard-name a:hover {
+    color: var(--blue-600);
+    text-decoration: underline;
+  }
+  .rcard-desc {
+    color: var(--slate);
+    font-size: 0.97rem;
+    margin-bottom: 0.9rem;
+  }
+  .rcard-meta {
+    margin: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .meta-row {
+    display: flex;
+    align-items: start;
+    gap: 0.5rem;
+    color: var(--slate);
+    font-size: 0.9rem;
+  }
+  .meta-row :global(svg) {
+    color: var(--sage-600);
+    margin-top: 2px;
+    flex: none;
+  }
+  .meta-row dd {
+    margin: 0;
+  }
+  .rcard-actions {
+    display: flex;
+    gap: 0.6rem;
+    padding: 1rem 1.25rem 1.25rem;
+  }
+  .btn-sm {
+    padding: 0.6rem 1rem;
+    font-size: 0.92rem;
+    flex: 1;
+    justify-content: center;
+  }
+</style>

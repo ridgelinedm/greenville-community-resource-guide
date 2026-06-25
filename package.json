@@ -1,0 +1,17 @@
+{
+  "name": "greenville-community-resource-guide",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "A trustworthy, accessible directory of homeless and community resources in Greenville County, SC, with intent-based pages for every situation of need.",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^5.7.0",
+    "@astrojs/sitemap": "^3.3.0"
+  }
+}

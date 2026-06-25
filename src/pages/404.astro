@@ -1,0 +1,86 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { CORE_CATEGORIES } from '../data/resources';
+import { link } from '../utils/url';
+---
+
+<Base title="Page Not Found" noindex>
+  <section class="section nf">
+    <div class="container container-narrow nf-inner">
+      <p class="eyebrow">Error 404</p>
+      <h1>We couldn't find that page</h1>
+      <p class="lead">
+        The page may have moved — but the help you're looking for is still here. Try searching
+        or pick a category below.
+      </p>
+
+      <form class="nf-search" action={link('/resources')} method="get" role="search">
+        <Icon name="search" size={20} class="nf-search-icon" />
+        <label for="nf-q" class="sr-only">Search resources</label>
+        <input id="nf-q" name="q" type="search" placeholder="Search resources…" autocomplete="off" />
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+
+      <div class="nf-cats">
+        {
+          CORE_CATEGORIES.map((c) => (
+            <a href={link(`/${c.slug}`)} class="chip chip-sage">
+              <Icon name={c.icon} size={15} />
+              {c.label}
+            </a>
+          ))
+        }
+        <a href={link('/get-help-now')} class="chip"><Icon name="phone" size={15} /> Get help now</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    text-align: center;
+  }
+  .nf-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .nf .lead {
+    margin-top: 0.6rem;
+    max-width: 50ch;
+  }
+  .nf-search {
+    margin-top: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #fff;
+    border: 1.5px solid var(--line-strong);
+    border-radius: var(--radius-full);
+    padding: 0.4rem 0.4rem 0.4rem 1rem;
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+    max-width: 520px;
+  }
+  .nf-search-icon {
+    color: var(--slate-light);
+    flex: none;
+  }
+  .nf-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font: inherit;
+    padding: 0.5rem 0;
+    background: transparent;
+    min-width: 0;
+  }
+  .nf-cats {
+    margin-top: 1.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+  }
+</style>
