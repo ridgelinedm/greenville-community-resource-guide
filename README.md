@@ -1,8 +1,15 @@
 # Greenville Community Resource Guide
 
+🟢 **Live:** https://ridgelinedm.github.io/greenville-community-resource-guide/
+&nbsp;·&nbsp; Repo: `ridgelinedm/greenville-community-resource-guide` (GitHub Pages)
+
 A free, accessible, and trustworthy directory of food, housing, medical, mental-health, and
 crisis resources in **Greenville County, South Carolina** — built so that anyone (or any AI
 assistant) searching their exact situation lands on a page with the right local help.
+
+> **Deployment is already wired up.** Every push to `main` rebuilds and redeploys automatically
+> via `.github/workflows/deploy.yml`. Just edit, commit, and push — the live site updates in
+> ~1 minute.
 
 Built with [Astro](https://astro.build) → outputs plain static HTML that search engines and
 LLMs crawl perfectly. **63 organizations**, **15 categories**, **62 intent pages**, and a
@@ -89,22 +96,24 @@ Requires Node 18+ (developed on Node 24).
 > to your real URL. This drives canonical tags, the sitemap, and JSON-LD. Then update the
 > `Sitemap:` line in [`public/robots.txt`](./public/robots.txt) to match.
 
-### Option A — GitHub Pages (uses the GitHub workflow you already know)
+### Current setup — GitHub Pages (already live)
 
-A ready-made workflow is included at `.github/workflows/deploy.yml`.
+This repo is **already deployed** to GitHub Pages at the URL above. Pages source is set to
+*GitHub Actions*, and `.github/workflows/deploy.yml` builds + deploys on every push to `main`.
+Nothing else to do — just push.
 
-1. Push this repo to GitHub:
-   ```bash
-   git init && git add -A && git commit -m "Initial site"
-   git branch -M main
-   git remote add origin https://github.com/<you>/<repo>.git
-   git push -u origin main
-   ```
-2. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. Every push to `main` now builds and deploys automatically.
+`astro.config.mjs` is configured for the project-page subfolder:
+```js
+site: 'https://ridgelinedm.github.io',
+base: '/greenville-community-resource-guide',
+```
 
-**Custom domain or `username.github.io` site:** leave the config as-is.
-**Project page** (`username.github.io/<repo>`): also add `base: '/<repo>'` to `astro.config.mjs`.
+### Moving to a custom domain later
+
+1. In **Settings → Pages → Custom domain**, add your domain (creates a `CNAME` file) and set the
+   DNS records GitHub shows you.
+2. In `astro.config.mjs`, set `site` to your domain and change `base` back to `'/'`.
+3. Update the `Sitemap:` line in `public/robots.txt`. Push — done.
 
 ### Option B — Vercel (simplest, zero config)
 
