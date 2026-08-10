@@ -7,19 +7,24 @@ import { RESOURCES, activeCategories, AUDIENCES, getCategory } from '../data/res
 import { AREA } from '../consts';
 
 const cats = activeCategories();
+
+// The search index is split into separate fields rather than one flat blob so
+// each can be weighted. This matters most for `serves`: it's an eligibility
+// list ("man woman couple veteran senior …"), not a description of what an org
+// actually does. Indexed at full weight it made every come-one-come-all org
+// match "veteran" or "domestic violence", burying the real specialists.
 const items = RESOURCES.map((r) => ({
   resource: r,
   cats: r.categories.join(' '),
   auds: r.audiences.join(' '),
-  text: [
-    r.name,
-    r.description,
-    r.serves.join(' '),
-    r.address ?? '',
-    r.categories.map((c) => getCategory(c)?.label ?? '').join(' '),
-  ]
+  name: r.name.toLowerCase(),
+  catLabels: r.categories
+    .map((c) => getCategory(c)?.label ?? '')
     .join(' ')
     .toLowerCase(),
+  desc: (r.description ?? '').toLowerCase(),
+  address: (r.address ?? '').toLowerCase(),
+  serves: r.serves.join(' ').toLowerCase(),
 }));
 
 const title = `All Resources — Search Free Help in ${AREA}`;
@@ -93,7 +98,16 @@ const description = `Search and filter all ${RESOURCES.length} community resourc
       <div class="grid grid-3" id="dir-results">
         {
           items.map((it) => (
-            <div class="result" data-cats={it.cats} data-auds={it.auds} data-text={it.text}>
+            <div
+              class="result"
+              data-cats={it.cats}
+              data-auds={it.auds}
+              data-name={it.name}
+              data-catlabels={it.catLabels}
+              data-desc={it.desc}
+              data-address={it.address}
+              data-serves={it.serves}
+            >
               <ResourceCard resource={it.resource} />
             </div>
           ))
@@ -247,6 +261,7 @@ const description = `Search and filter all ${RESOURCES.length} community resourc
 </style>
 
 <script>
+  import { rank, expand } from '../utils/search';
   const q = document.getElementById('dir-q') as HTMLInputElement;
   const clearBtn = document.getElementById('dir-clear') as HTMLButtonElement;
   const resetBtn = document.getElementById('dir-reset') as HTMLButtonElement;
@@ -256,23 +271,39 @@ const description = `Search and filter all ${RESOURCES.length} community resourc
   const results = Array.from(document.querySelectorAll<HTMLElement>('.result'));
   const total = results.length;
 
+  const docs = results.map((el) => ({
+    el,
+    fields: {
+      name: el.dataset.name || '',
+      catlabels: el.dataset.catlabels || '',
+      desc: el.dataset.desc || '',
+      address: el.dataset.address || '',
+      serves: el.dataset.serves || '',
+    },
+    cats: (el.dataset.cats || '').split(' ').filter(Boolean),
+    auds: (el.dataset.auds || '').split(' ').filter(Boolean),
+    ref: el,
+  }));
+
   const state = { q: '', category: '', audience: '' };
 
   function apply() {
-    const tokens = state.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    let shown = 0;
-    for (const el of results) {
-      const text = el.dataset.text || '';
-      const cats = (el.dataset.cats || '').split(' ');
-      const auds = (el.dataset.auds || '').split(' ');
-      const matchText = tokens.every((t) => text.includes(t));
-      const matchCat = !state.category || cats.includes(state.category);
-      const matchAud = !state.audience || auds.includes(state.audience);
-      const visible = matchText && matchCat && matchAud;
-      el.hidden = !visible;
-      if (visible) shown++;
-    }
-    const filtering = tokens.length || state.category || state.audience;
+    const hits = rank(docs, state.q, { category: state.category, audience: state.audience });
+    const querying = expand(state.q).length > 0;
+
+    const show = new Set(hits.map((h) => h.doc.ref));
+    for (const d of docs) d.el.hidden = !show.has(d.el);
+
+    // Reorder the DOM so the best match is first — appending an existing node
+    // moves it. With no query, fall back to the original authored order.
+    const frag = document.createDocumentFragment();
+    (querying ? hits.map((h) => h.doc.ref) : docs.map((d) => d.el)).forEach((el) =>
+      frag.appendChild(el)
+    );
+    resultsEl.appendChild(frag);
+
+    const shown = hits.length;
+    const filtering = querying || state.category || state.audience;
     countEl.textContent = filtering
       ? `Showing ${shown} of ${total} resources`
       : `Showing all ${total} resources`;
