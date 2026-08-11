@@ -33,7 +33,9 @@ const {
 const origin = Astro.site?.origin ?? '';
 // Astro.url.pathname may include the base prefix; strip then re-add canonically.
 const cleanPath = stripBase(canonical ?? Astro.url.pathname);
-const canonicalUrl = absolute(origin, cleanPath).replace(/(.+)\/$/, '$1');
+// `link()` supplies the trailing slash. Stripping it here pointed the canonical
+// at a URL that 301-redirects, instead of the one that serves 200.
+const canonicalUrl = absolute(origin, cleanPath);
 const fullTitle = bareTitle ? title : `${title} | ${SITE_NAME}`;
 const ogImage = image.startsWith('http') ? image : absolute(origin, image);
 ---

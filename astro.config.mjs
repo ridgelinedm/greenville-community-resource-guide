@@ -8,7 +8,10 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://ridgelinedm.github.io',
   base: '/greenville-community-resource-guide',
-  trailingSlash: 'ignore',
+  // 'always' matches how the built pages are actually served: each page is a
+  // `foo/index.html`, and static hosts 301 `/foo` to `/foo/`. Keeping dev and
+  // prod on the same rule stops canonicals and sitemap URLs from disagreeing.
+  trailingSlash: 'always',
   integrations: [
     sitemap({
       changefreq: 'weekly',
