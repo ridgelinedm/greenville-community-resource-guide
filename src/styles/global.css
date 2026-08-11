@@ -70,6 +70,17 @@
   margin: 0;
 }
 
+/*
+ * The browser hides [hidden] elements via its own `display: none`, but any
+ * author `display` rule outranks the UA stylesheet — so `.result { display:
+ * flex }`, `.grid { display: grid }` and `.btn { display: inline-flex }` all
+ * silently defeated it, and `el.hidden = true` stopped hiding anything. The
+ * directory search relies on this, so keep the !important.
+ */
+[hidden] {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
