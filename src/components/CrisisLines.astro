@@ -1,14 +1,27 @@
 ---
 import Icon from './Icon.astro';
 import { CRISIS_LINES } from '../consts';
+import { link } from '../utils/url';
 
 interface Props {
-  variant?: 'full' | 'compact';
+  /** 'strip' is a single line for list pages, so urgent numbers stay visible
+   *  without pushing the resources below the fold. */
+  variant?: 'full' | 'compact' | 'strip';
   title?: string;
 }
 const { variant = 'full', title = 'In crisis or in danger? Get help right now.' } = Astro.props;
 ---
 
+{variant === 'strip' ? (
+  <p class="crisis-strip">
+    <Icon name="alert" size={18} />
+    <span>
+      <strong>In danger?</strong> Call <a href="tel:911">911</a>. <strong>In crisis?</strong>
+      Call or text <a href="tel:988">988</a>.
+      <a href={link('/get-help-now')} class="crisis-strip-more">More crisis lines</a>
+    </span>
+  </p>
+) : (
 <section class:list={['crisis', variant]} aria-label="Emergency and crisis hotlines">
   <div class="crisis-head">
     <span class="crisis-icon" aria-hidden="true"><Icon name="alert" size={20} /></span>
@@ -30,8 +43,34 @@ const { variant = 'full', title = 'In crisis or in danger? Get help right now.' 
     }
   </ul>
 </section>
+)}
 
 <style>
+  .crisis-strip {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    background: var(--alert-bg);
+    border: 1px solid var(--alert-border);
+    border-left: 4px solid var(--alert);
+    border-radius: var(--radius-sm);
+    font-size: 0.97rem;
+  }
+  .crisis-strip :global(svg) {
+    flex: none;
+    margin-top: 3px;
+    color: var(--alert);
+  }
+  .crisis-strip a {
+    font-weight: 700;
+    color: var(--alert-dark);
+  }
+  .crisis-strip .crisis-strip-more {
+    font-weight: 600;
+    margin-left: 0.25rem;
+  }
   .crisis {
     background: var(--alert-bg);
     border: 1px solid var(--alert-border);

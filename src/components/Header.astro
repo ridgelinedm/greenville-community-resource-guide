@@ -1,6 +1,6 @@
 ---
 import Icon from './Icon.astro';
-import { SITE_NAME } from '../consts';
+import { SITE_NAME, SITE_SUBTITLE } from '../consts';
 import { CORE_CATEGORIES } from '../data/resources';
 import { link, stripBase } from '../utils/url';
 
@@ -16,8 +16,8 @@ const isActive = (href: string) =>
         <Icon name="heart" size={20} />
       </span>
       <span class="brand-text">
-        <span class="brand-name">Greenville</span>
-        <span class="brand-sub">Community Resource Guide</span>
+        <span class="brand-name">{SITE_NAME}</span>
+        <span class="brand-sub">{SITE_SUBTITLE}</span>
       </span>
     </a>
 

@@ -73,6 +73,23 @@ export interface Resource {
   serves: string[]; // raw tokens from the CSV
   audiences: AudienceKey[]; // normalized audience tags
   servesEveryone: boolean;
+  /** Plain-language "who it's for" line, e.g. "Open to everyone". Null if unknown. */
+  whoFor: string | null;
+  /** Practical caveats shown on action cards ("An appointment is needed."). */
+  goodToKnow: string[];
+  /** The single clearest thing to do next, plus the button that does it. */
+  nextStep: NextStep | null;
+}
+
+export interface NextStep {
+  /** Sentence shown above the button, e.g. "Call to ask if they have space tonight." */
+  text: string;
+  /** Button label, e.g. "Call (864) 555-0100". */
+  label: string;
+  href: string;
+  kind: 'call' | 'website' | 'directions';
+  /** True when `text` was written for this organization rather than its category. */
+  custom: boolean;
 }
 
 export interface Category {
@@ -539,7 +556,34 @@ export const INTENT_CATEGORIES = CATEGORIES.filter((c) => c.intents);
 interface Meta {
   categories: CategoryKey[];
   description: string;
+  /** Override the category's default next-step sentence. */
+  nextStep?: string;
+  /** Extra caveats specific to this organization. */
+  goodToKnow?: string[];
 }
+
+/**
+ * Default "what to do next" sentence by primary category, used when an
+ * organization has no override. Written as the call a stressed person should
+ * actually make, not as a description of the service.
+ */
+export const NEXT_STEP_BY_CATEGORY: Record<CategoryKey, string> = {
+  food: 'Call to check when they are serving or open.',
+  housing: 'Call to ask if they have space and how to get in.',
+  medical: 'Call to ask about an appointment and what to bring.',
+  'mental-health': 'Call to ask how to get started.',
+  financial: 'Call to ask what help is available and what to bring.',
+  legal: 'Call to ask if they can help with your situation.',
+  transportation: 'Check routes, fares, or hours before you go.',
+  reentry: 'Call to ask how to join their program.',
+  veterans: 'Call to ask how they can help you or your family.',
+  youth: 'Call to ask how to get help.',
+  family: 'Call to ask how they can help your family.',
+  hiv: 'Call to ask about testing, care, or support.',
+  immigrant: 'Call to ask how they can help. Spanish is spoken.',
+  education: 'Call to ask how to enroll or get support.',
+  community: 'Call or visit to ask how they can help.',
+};
 
 const META: Record<string, Meta> = {
   'Online Food Resource Guide': {
@@ -648,11 +692,13 @@ const META: Record<string, Meta> = {
     categories: ['financial'],
     description:
       'Helps people apply for SNAP, Medicaid, and other benefits, plus financial-wellness tools.',
+    nextStep: 'Call for free help applying for SNAP, Medicaid, or other benefits.',
   },
   'Safe Harbor': {
     categories: ['housing'],
     description:
       'Emergency shelter, counseling, and advocacy for survivors of domestic violence (24/7 hotline).',
+    nextStep: 'Call the 24/7 hotline. It is free and confidential.',
   },
   'Time Served': {
     categories: ['reentry'],
@@ -665,6 +711,7 @@ const META: Record<string, Meta> = {
   'Project Host': {
     categories: ['food'],
     description: 'Soup kitchen serving free lunches, plus a culinary job-training program.',
+    nextStep: 'Check their website for meal times, then walk in.',
   },
   'Project Care Inc.': {
     categories: ['hiv', 'medical'],
@@ -786,6 +833,7 @@ const META: Record<string, Meta> = {
     categories: ['mental-health'],
     description:
       'Outpatient mental-health treatment with 24/7 mobile crisis response for the Upstate.',
+    goodToKnow: ['After hours, call SC Mobile Crisis at 1-833-364-2274.'],
   },
   Gateway: {
     categories: ['mental-health'],
@@ -868,11 +916,69 @@ function loadResources(): Resource[] {
         serves,
         audiences,
         servesEveryone: everyone,
+        whoFor: null,
+        goodToKnow: [],
+        nextStep: null,
       };
+      resource.whoFor = describeWhoFor(resource);
+      resource.goodToKnow = describeGoodToKnow(resource, meta);
+      resource.nextStep = describeNextStep(resource, meta);
       return resource;
     })
     .filter((r): r is Resource => r !== null)
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function describeWhoFor(r: Resource): string | null {
+  if (r.servesEveryone) return 'Open to everyone';
+  const groups = r.audiences
+    .map((k) => AUDIENCE_BY_KEY.get(k)?.short)
+    .filter((s): s is string => Boolean(s));
+  if (groups.length === 0) return null;
+  if (groups.length === 1) return `Serves ${groups[0]}`;
+  return `Serves ${groups.slice(0, -1).join(', ')} and ${groups[groups.length - 1]}`;
+}
+
+function describeGoodToKnow(r: Resource, meta: Meta | undefined): string[] {
+  const notes: string[] = [...(meta?.goodToKnow ?? [])];
+  if (/appointment/i.test(r.description)) notes.push('An appointment is needed.');
+  if (r.audiences.includes('no-id')) notes.push('You can get help without a photo ID.');
+  if (!r.hours && (r.phones.length || r.address)) {
+    notes.push('Hours are not listed here. Call before you go.');
+  }
+  return notes;
+}
+
+function describeNextStep(r: Resource, meta: Meta | undefined): NextStep | null {
+  const phone = r.phones[0];
+  if (phone) {
+    return {
+      text: meta?.nextStep ?? NEXT_STEP_BY_CATEGORY[r.categories[0]],
+      label: `Call ${phone.display}`,
+      href: `tel:${phone.tel}`,
+      kind: 'call',
+      custom: Boolean(meta?.nextStep),
+    };
+  }
+  if (r.websiteUrl) {
+    return {
+      text: meta?.nextStep ?? 'Visit their website to see how to get help.',
+      label: 'Visit their website',
+      href: r.websiteUrl,
+      kind: 'website',
+      custom: Boolean(meta?.nextStep),
+    };
+  }
+  if (r.mapUrl) {
+    return {
+      text: meta?.nextStep ?? 'Go in person. Check the hours first if you can.',
+      label: 'Get directions',
+      href: r.mapUrl,
+      kind: 'directions',
+      custom: Boolean(meta?.nextStep),
+    };
+  }
+  return null;
 }
 
 export const RESOURCES: Resource[] = loadResources();

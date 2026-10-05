@@ -82,18 +82,27 @@ const jsonLd = {
   {
     isCrisisCategory && (
       <div class="container container-narrow crisis-wrap">
-        <CrisisLines variant="compact" />
+        <CrisisLines variant="strip" />
       </div>
     )
   }
+
+  <section class="section" aria-labelledby="list-h">
+    <div class="container">
+      <h2 id="list-h" class="list-h">All {category.label.toLowerCase()} resources</h2>
+      <div class="grid grid-3">
+        {resources.map((r) => <ResourceCard resource={r} contextCategory={category.key} />)}
+      </div>
+    </div>
+  </section>
 
   {
     intents.length > 0 && (
       <section class="section-tight bg-sage" aria-labelledby="intent-h">
         <div class="container">
           <div class="section-head">
-            <h2 id="intent-h">Find {category.label.toLowerCase()} for your situation</h2>
-            <p>Dedicated pages for specific circumstances, so you reach the right help faster.</p>
+            <h2 id="intent-h">Narrow it down</h2>
+            <p>See only the places that serve people in your situation.</p>
           </div>
           <ul class="intent-list">
             {intents.map((i) => (
@@ -110,15 +119,6 @@ const jsonLd = {
       </section>
     )
   }
-
-  <section class="section" aria-labelledby="list-h">
-    <div class="container">
-      <h2 id="list-h" class="list-h">All {category.label.toLowerCase()} resources</h2>
-      <div class="grid grid-3">
-        {resources.map((r) => <ResourceCard resource={r} contextCategory={category.key} />)}
-      </div>
-    </div>
-  </section>
 
   {
     spokes.length > 0 && spokeAudience && (

@@ -1,15 +1,30 @@
 ---
+/**
+ * Action card: answers "what can this place do for me, and what do I do next?"
+ * The next step is always the most prominent thing on the card.
+ */
 import Icon from './Icon.astro';
-import { getCategory, type Resource } from '../data/resources';
+import { getCategory, NEXT_STEP_BY_CATEGORY, type CategoryKey, type Resource } from '../data/resources';
 import { link } from '../utils/url';
 
 interface Props {
   resource: Resource;
   /** Category context (e.g. the hub/intent page) shown first in the chip row. */
   contextCategory?: string;
+  /** Heading level for the organization name, so cards nest correctly on every page. */
+  headingLevel?: 'h2' | 'h3' | 'h4';
 }
-const { resource, contextCategory } = Astro.props;
-const primaryPhone = resource.phones[0];
+const { resource, contextCategory, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+const next = resource.nextStep;
+// On a category page, phrase the call around that need ("ask if they have space")
+// unless this organization has its own wording.
+const nextText =
+  next && next.kind === 'call' && !next.custom && contextCategory
+    ? NEXT_STEP_BY_CATEGORY[contextCategory as CategoryKey] ?? next.text
+    : next?.text;
+const external = next?.kind !== 'call';
+const nextIcon = next?.kind === 'call' ? 'phone' : next?.kind === 'directions' ? 'map-pin' : 'external';
 
 // Order chips so the page's category appears first.
 const cats = [...resource.categories].sort((a, b) =>
@@ -21,64 +36,98 @@ const cats = [...resource.categories].sort((a, b) =>
   <div class="rcard-body">
     <div class="rcard-tags">
       {
-        cats.slice(0, 3).map((c) => {
+        cats.slice(0, 2).map((c) => {
           const cat = getCategory(c);
           return cat ? (
             <span class:list={['chip', 'chip-sage', { 'chip-on': c === contextCategory }]}>
               <Icon name={cat.icon} size={14} />
-              {cat.label}
+              {cat.nav ?? cat.label}
             </span>
           ) : null;
         })
       }
     </div>
 
-    <h3 class="rcard-name">
+    <Heading class="rcard-name">
       <a href={link(`/resource/${resource.slug}`)}>{resource.name}</a>
-    </h3>
+    </Heading>
 
-    {resource.description && <p class="rcard-desc">{resource.description}</p>}
-
-    <dl class="rcard-meta">
+    <dl class="rcard-facts">
       {
-        resource.address && (
-          <div class="meta-row">
-            <Icon name="map-pin" size={16} />
-            <dd>{resource.address}</dd>
+        resource.description && (
+          <div>
+            <dt>What they help with</dt>
+            <dd>{resource.description}</dd>
+          </div>
+        )
+      }
+      {
+        resource.whoFor && (
+          <div>
+            <dt>Who it's for</dt>
+            <dd>{resource.whoFor}</dd>
           </div>
         )
       }
       {
         resource.hours && (
-          <div class="meta-row">
-            <Icon name="clock" size={16} />
+          <div>
+            <dt>Hours</dt>
             <dd>{resource.hours}</dd>
           </div>
         )
       }
       {
-        resource.servesEveryone && (
-          <div class="meta-row">
-            <Icon name="users" size={16} />
-            <dd>Open to everyone</dd>
+        resource.address && (
+          <div>
+            <dt>Where</dt>
+            <dd>{resource.address}</dd>
+          </div>
+        )
+      }
+      {
+        resource.goodToKnow.length > 0 && (
+          <div>
+            <dt>Good to know</dt>
+            <dd>
+              {resource.goodToKnow.length === 1 ? (
+                resource.goodToKnow[0]
+              ) : (
+                <ul>{resource.goodToKnow.map((n) => <li>{n}</li>)}</ul>
+              )}
+            </dd>
           </div>
         )
       }
     </dl>
   </div>
 
-  <div class="rcard-actions">
+  <div class="rcard-next">
     {
-      primaryPhone ? (
-        <a class="btn btn-primary btn-sm" href={`tel:${primaryPhone.tel}`}>
-          <Icon name="phone" size={16} /> Call
-        </a>
+      next ? (
+        <>
+          <p class="rcard-next-text">
+            <strong>Next step:</strong> {nextText}
+          </p>
+          <a
+            class="btn btn-primary rcard-cta"
+            href={next.href}
+            {...(external ? { target: '_blank', rel: 'noopener' } : {})}
+          >
+            <Icon name={nextIcon} size={18} /> {next.label}
+            {external && <span class="sr-only">(opens in a new tab)</span>}
+          </a>
+        </>
       ) : (
-        <span />
+        <p class="rcard-next-text">
+          <strong>Next step:</strong> We don't have contact details for this one yet. Call
+          <a href="tel:211">211</a> and ask for it by name.
+        </p>
       )
     }
-    <a class="btn btn-outline btn-sm" href={link(`/resource/${resource.slug}`)}>
-      Details <Icon name="arrow-right" size={16} />
+    <a class="rcard-more" href={link(`/resource/${resource.slug}`)}>
+      More about {resource.name}
+      <Icon name="arrow-right" size={16} />
     </a>
   </div>
 </article>
@@ -91,15 +140,9 @@ const cats = [...resource.categories].sort((a, b) =>
     box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
-    transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
-  }
-  .rcard:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-    border-color: var(--line-strong);
   }
   .rcard-body {
-    padding: 1.25rem 1.25rem 0.5rem;
+    padding: 1.25rem 1.25rem 0.75rem;
     flex: 1;
   }
   .rcard-tags {
@@ -116,7 +159,7 @@ const cats = [...resource.categories].sort((a, b) =>
   .rcard-name {
     font-size: 1.18rem;
     line-height: 1.25;
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.8rem;
   }
   .rcard-name a {
     color: var(--blue-900);
@@ -126,40 +169,52 @@ const cats = [...resource.categories].sort((a, b) =>
     color: var(--blue-600);
     text-decoration: underline;
   }
-  .rcard-desc {
-    color: var(--slate);
-    font-size: 0.97rem;
-    margin-bottom: 0.9rem;
-  }
-  .rcard-meta {
+  .rcard-facts {
     margin: 0;
     display: grid;
-    gap: 0.4rem;
-  }
-  .meta-row {
-    display: flex;
-    align-items: start;
-    gap: 0.5rem;
-    color: var(--slate);
-    font-size: 0.9rem;
-  }
-  .meta-row :global(svg) {
-    color: var(--sage-600);
-    margin-top: 2px;
-    flex: none;
-  }
-  .meta-row dd {
-    margin: 0;
-  }
-  .rcard-actions {
-    display: flex;
     gap: 0.6rem;
-    padding: 1rem 1.25rem 1.25rem;
+    font-size: 0.95rem;
   }
-  .btn-sm {
-    padding: 0.6rem 1rem;
-    font-size: 0.92rem;
-    flex: 1;
+  .rcard-facts dt {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+  .rcard-facts dd {
+    margin: 0.1rem 0 0;
+    color: var(--ink);
+  }
+  .rcard-facts ul {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+  .rcard-next {
+    border-top: 1px solid var(--line);
+    background: var(--bg-soft);
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 1rem 1.25rem 1.1rem;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .rcard-next-text {
+    margin: 0;
+    font-size: 0.97rem;
+    color: var(--ink);
+  }
+  .rcard-cta {
+    width: 100%;
     justify-content: center;
+    min-height: 48px;
+  }
+  .rcard-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    justify-self: start;
+    padding-block: 0.25rem;
   }
 </style>

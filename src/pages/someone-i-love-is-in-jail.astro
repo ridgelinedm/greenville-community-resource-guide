@@ -1,0 +1,576 @@
+---
+/**
+ * Family journey: someone you love was arrested or is incarcerated.
+ *
+ * Every fact here was checked against an official Greenville County, SC
+ * Judicial, SCDC, or DSS page on CHECKED_ON. Anything we could not confirm is
+ * written as "call and ask" rather than stated as fact. When you re-verify,
+ * update CHECKED_ON and the matching source URLs in the comments.
+ */
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ResourceCard from '../components/ResourceCard.astro';
+import { getResource, type Resource } from '../data/resources';
+import { AREA } from '../consts';
+import { link } from '../utils/url';
+
+const CHECKED_ON = 'October 5, 2026';
+const JAIL_INFO = { display: '864-467-2330', tel: '8644672330' };
+
+const steps = [
+  { id: 'find', title: 'Find out where they are' },
+  { id: 'bond', title: 'Bond: getting them out' },
+  { id: 'talk', title: 'Talk to them: calls and mail' },
+  { id: 'visit', title: 'Visit them' },
+  { id: 'money', title: 'Put money on their account' },
+  { id: 'court', title: 'Court dates and a lawyer' },
+  { id: 'medicine', title: 'If they need medicine' },
+  { id: 'family', title: 'Help for you and your family' },
+  { id: 'prison', title: 'If they are in a state prison' },
+];
+
+const helpers = ['time-served', 'nami-greenville', 'south-carolina-legal-services']
+  .map((slug) => getResource(slug))
+  .filter((r): r is Resource => Boolean(r));
+
+const faq = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How do I find out if someone is in the Greenville County jail?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `Use the Greenville County Detention Center inmate search at app.greenvillecounty.org/inmate_search.htm, or call ${JAIL_INFO.display}.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How can someone in the Greenville County jail call me?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Calls go through Securus. To get calls on a cell phone, set up a prepaid Securus account at 1-800-844-6591 or securustech.net.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Where do I send mail to someone in the Greenville County jail?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Personal mail goes to: Inmate name and ID number, C/O Securus Digital Mail Center-Greenville, PO Box 21665, Tampa, FL 33622. Photos are not accepted.',
+      },
+    },
+  ],
+};
+---
+
+<Base
+  title="Someone you love was arrested or is in jail in Greenville, SC"
+  description="What to do when someone you love is arrested in Greenville County: find where they are, bond, phone calls, mail, visits, money, court, and help for your family."
+  jsonLd={faq}
+>
+  <div class="container fam-top">
+    <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Someone I love is in jail' }]} />
+  </div>
+
+  <section class="fam-hero">
+    <div class="container container-narrow">
+      <h1>Someone you love was arrested or is in jail</h1>
+      <p class="lead">
+        This is hard, and you are not the only one going through it. This page walks you
+        through what to do, one step at a time. You don't need to read all of it. Start with
+        the first three steps below.
+      </p>
+      <p class="fam-checked">
+        <Icon name="info" size={18} />
+        <span>
+          We checked this against official county and state websites on {CHECKED_ON}. Jail
+          rules change often, so call to confirm before you go or send anything. This page is
+          about the <strong>Greenville County jail</strong>. If they are in a state prison, see
+          <a href="#prison">state prison</a>.
+        </span>
+      </p>
+    </div>
+  </section>
+
+  <section class="section-tight" aria-labelledby="first-h">
+    <div class="container container-narrow">
+      <h2 id="first-h">Start with these three things</h2>
+      <ol class="first-steps">
+        <li>
+          <span class="first-num" aria-hidden="true">1</span>
+          <div>
+            <h3>Look them up</h3>
+            <p>
+              The county's inmate search shows if they are being held, their charges, and their
+              bond.
+            </p>
+            <a class="btn btn-primary first-btn" href="https://app.greenvillecounty.org/inmate_search.htm" target="_blank" rel="noopener">
+              <Icon name="search" size={18} /> Search the county jail
+              <span class="sr-only">(opens in a new tab)</span>
+            </a>
+          </div>
+        </li>
+        <li>
+          <span class="first-num" aria-hidden="true">2</span>
+          <div>
+            <h3>Set up a phone account so they can call you</h3>
+            <p>
+              They can't get collect calls on a cell phone. Set up a prepaid Securus account
+              so your phone can take their calls.
+            </p>
+            <a class="btn btn-primary first-btn" href="tel:18008446591">
+              <Icon name="phone" size={18} /> Call Securus: 1&#8209;800&#8209;844&#8209;6591
+            </a>
+          </div>
+        </li>
+        <li>
+          <span class="first-num" aria-hidden="true">3</span>
+          <div>
+            <h3>If they take medicine, tell the jail</h3>
+            <p>
+              Send the jail's medical form so their medicine or mental-health care isn't
+              missed. <a href="#medicine">Here's how</a>.
+            </p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section-tight bg-soft" aria-labelledby="toc-h">
+    <div class="container container-narrow">
+      <h2 id="toc-h" class="toc-h">What do you need to know?</h2>
+      <ul class="toc">
+        {
+          steps.map((s) => (
+            <li>
+              <a href={`#${s.id}`}>
+                {s.title} <Icon name="chevron-right" size={18} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <div class="container container-narrow fam-body">
+    <!-- Source: greenvillecounty.org/DetentionCenter/FAQ.aspx, ContactUs.aspx -->
+    <section id="find" class="fam-section">
+      <h2>Find out where they are</h2>
+      <p>
+        Most people arrested in Greenville County go to the <strong>Greenville County
+        Detention Center</strong> at 20 McGee St, Greenville, SC 29601.
+      </p>
+      <ul>
+        <li>
+          <a href="https://app.greenvillecounty.org/inmate_search.htm" target="_blank" rel="noopener">Search the county jail online</a>.
+          It shows their charges, bond, and the judge.
+        </li>
+        <li>
+          The search does not show which building they are in. To find out, call the jail at
+          <a href={`tel:${JAIL_INFO.tel}`}>{JAIL_INFO.display}</a>.
+        </li>
+        <li>
+          If the search says <strong>"temporary bond,"</strong> they have not seen a judge yet,
+          and no bond has been set.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Sources: greenvillecounty.org/MagistrateCourts/bondcourt.aspx;
+         greenvillecounty.org/clerkofcourt/OrdersForBail.aspx; DetentionCenter/FAQ.aspx;
+         sccourts.org General Sessions FAQ -->
+    <section id="bond" class="fam-section">
+      <h2>Bond: getting them out</h2>
+      <p>
+        A judge usually sets bond within <strong>24 hours</strong> of the arrest, at Central
+        Bond Court in the Law Enforcement Center, 4 McGee St. For very serious charges, a
+        higher court sets bond, and that can take longer.
+      </p>
+      <h3>Ways bond can be paid</h3>
+      <ul>
+        <li><strong>Personal recognizance:</strong> no money. They promise to come to court.</li>
+        <li><strong>Cash:</strong> you pay the full amount.</li>
+        <li><strong>10% cash:</strong> sometimes the judge lets you pay 10% instead of using a bondsman.</li>
+        <li><strong>Bondsman (surety):</strong> a bondsman usually charges 10–15% of the bond. You don't get that fee back.</li>
+      </ul>
+      <p class="fam-note">
+        <Icon name="info" size={18} />
+        <span>
+          <strong>Call and ask where to pay.</strong> Ask the bond court office at
+          <a href="tel:8644672402">864-467-2402</a> or the jail at
+          <a href={`tel:${JAIL_INFO.tel}`}>{JAIL_INFO.display}</a> exactly where and how to pay
+          their bond.
+        </span>
+      </p>
+      <p>
+        After bond is paid, the jail waits for the court's release order. The jail says it
+        aims to release people within <strong>4 hours</strong> after that.
+      </p>
+    </section>
+
+    <!-- Sources: greenvillecounty.org/DetentionCenter/Telephone.aspx, Mail.aspx -->
+    <section id="talk" class="fam-section">
+      <h2>Talk to them: calls and mail</h2>
+      <h3>Phone calls</h3>
+      <ul>
+        <li>
+          Calls go through <strong>Securus</strong>. To get calls on a cell phone, set up a
+          prepaid account at <a href="tel:18008446591">1-800-844-6591</a> or
+          <a href="https://securustech.net/en/web/securus/phone-services" target="_blank" rel="noopener">securustech.net</a>.
+        </li>
+        <li>They can make calls from 7:30 a.m. to midnight. All calls are recorded.</li>
+        <li>You can't call them, and the jail won't pass along messages unless it's an emergency.</li>
+      </ul>
+      <h3>Mail</h3>
+      <p>Letters are scanned, and they read them on a screen. Send personal mail to:</p>
+      <address class="mail-block">
+        Their full name – their ID number<br />
+        C/O Securus Digital Mail Center-Greenville<br />
+        PO Box 21665<br />
+        Tampa, FL 33622
+      </address>
+      <ul>
+        <li>Put your full return address on the envelope.</li>
+        <li><strong>Photos are not accepted.</strong></li>
+        <li>
+          <strong>Packages are not accepted,</strong> including Amazon. Since August 1, 2026,
+          packages from stores are sent back.
+        </li>
+        <li>
+          You can drop off paperback books and magazines in the jail lobby at 20 McGee St,
+          8 a.m. to 10 p.m.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Source: greenvillecounty.org/DetentionCenter/Visitation.aspx -->
+    <section id="visit" class="fam-section">
+      <h2>Visit them</h2>
+      <ul>
+        <li>They can put up to <strong>3 adults</strong> on their visitor list. You must be on it.</li>
+        <li>They get <strong>two 30-minute visits a week</strong>. One adult can bring up to 2 children.</li>
+        <li>Bring a <strong>photo ID</strong> that matches the name on the visitor list.</li>
+        <li>Visits are first come, first served. You sign up in person that day.</li>
+        <li>Phones, bags, and tobacco aren't allowed. Lockers are available. Dress modestly.</li>
+      </ul>
+      <p class="fam-note">
+        <Icon name="info" size={18} />
+        <span>
+          Visiting hours depend on which building they are in. Call
+          <a href={`tel:${JAIL_INFO.tel}`}>{JAIL_INFO.display}</a> before you go.
+        </span>
+      </p>
+    </section>
+
+    <!-- Sources: greenvillecounty.org/DetentionCenter/Money.aspx, Commissary.aspx -->
+    <section id="money" class="fam-section">
+      <h2>Put money on their account</h2>
+      <p>Money on their account lets them buy snacks, hygiene items, and other things from the jail store.</p>
+      <ul>
+        <li>
+          <strong>In person:</strong> kiosks in the lobbies at 20 McGee St and 4 McGee St are
+          open 24 hours. They take cash or cards. There is a fee.
+        </li>
+        <li>
+          <strong>Online:</strong> <a href="https://www.jailpackstore.com" target="_blank" rel="noopener">jailpackstore.com</a>.
+          You can also order snack and hygiene packages there.
+        </li>
+        <li>
+          <strong>By mail:</strong> postal or Western Union money orders only, made out to
+          "Their full name c/o Greenville County Detention Center." Mail to Accounting
+          Specialists, Greenville County Detention Center, 20 McGee St, Greenville, SC 29601.
+          <strong>Never mail cash.</strong>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Sources: greenvillecounty.org/ClerkOfCourt/CourtDates.aspx; greenvilledefender.com/faq.asp -->
+    <section id="court" class="fam-section">
+      <h2>Court dates and a lawyer</h2>
+      <h3>Find their court date</h3>
+      <ul>
+        <li>
+          Look up the case on the
+          <a href="https://www2.greenvillecounty.org/scjd/publicindex/" target="_blank" rel="noopener">Greenville County Public Index</a>.
+        </li>
+        <li>
+          The Solicitor's Office sets court dates and sends them by mail. Make sure they have
+          a current address. Call <a href="tel:8644678647">864-467-8647</a> with questions.
+        </li>
+      </ul>
+      <h3>Get a free lawyer (public defender)</h3>
+      <ul>
+        <li>If they are still in jail, the Public Defender's Office checks if they qualify while they are inside.</li>
+        <li>
+          If they are out on bond, they must apply <strong>in person at least 14 days before
+          court</strong>: Courthouse Room 122, 305 E North St. Call
+          <a href="tel:8644678527">864-467-8527</a> for the application times.
+        </li>
+        <li>The fee is $40 in cash, but it can be lowered or waived if they can't pay. Bring proof of income or benefits.</li>
+      </ul>
+    </section>
+
+    <!-- Source: greenvillecounty.org/DetentionCenter/Medical.aspx -->
+    <section id="medicine" class="fam-section">
+      <h2>If they need medicine</h2>
+      <ol>
+        <li>
+          Fill out the
+          <a href="https://www.greenvillecounty.org/DetentionCenter/pdf/inmate_medication_information.pdf" target="_blank" rel="noopener">medical and mental-health form (PDF)</a>.
+        </li>
+        <li>
+          Fax it to the jail's health services at <strong>864-467-2386</strong> (any time), or
+          drop it off in the main lobby at 20 McGee St.
+        </li>
+        <li>
+          Then call <a href={`tel:${JAIL_INFO.tel}`}>{JAIL_INFO.display}</a> and ask to leave a
+          <strong>"Phone-In-Concern"</strong> for the medical staff.
+        </li>
+      </ol>
+    </section>
+
+    <!-- Sources: dss.sc.gov/contact-dss/upstate-region/greenville/;
+         unitedwaygc.org/get-help; namigreenvillesc.org/resources/family-member-arrested/ -->
+    <section id="family" class="fam-section">
+      <h2>Help for you and your family</h2>
+      <h3>If there are children</h3>
+      <ul>
+        <li>
+          If you are caring for a relative's children, Kinship Care can help. Call
+          <a href="tel:18888390155">1-888-839-0155</a>.
+        </li>
+        <li>
+          Greenville County DSS: <a href="tel:8644677700">864-467-7700</a>, 352 Halton Rd,
+          weekdays 8:30–5.
+        </li>
+      </ul>
+      <h3>If you need help with rent, bills, or food</h3>
+      <p>
+        Call <a href="tel:211">211</a> any time. They can connect you to rent, utility, and
+        food help near you. You can also see <a href={link('/financial-assistance')}>help
+        with rent and bills</a> and <a href={link('/food-assistance')}>food</a>.
+      </p>
+      <h3>If you need someone to talk to</h3>
+      <p>
+        If mental illness is part of what happened, NAMI Greenville helps families with
+        exactly this. Call <a href="tel:8643313300">864-331-3300</a>. If you are in crisis,
+        call or text <a href="tel:988">988</a>.
+      </p>
+    </section>
+
+    <!-- Source: doc.sc.gov/family -->
+    <section id="prison" class="fam-section">
+      <h2>If they are in a state prison</h2>
+      <p>
+        After sentencing, some people move to a state prison run by the SC Department of
+        Corrections (SCDC). The rules are different there.
+      </p>
+      <ul>
+        <li>
+          <strong>Find them:</strong> use the
+          <a href="https://public.doc.state.sc.us/scdc-public/" target="_blank" rel="noopener">SCDC inmate search</a>,
+          or call the family line at <a href="tel:8038968500">803-896-8500</a>.
+        </li>
+        <li>
+          <strong>Visits:</strong> apply and schedule online at
+          <a href="https://scdoc.gtlvisitme.com/app" target="_blank" rel="noopener">scdoc.gtlvisitme.com</a>.
+          Visits are on weekends. Video visits are also available.
+        </li>
+        <li>
+          <strong>Money:</strong> only people on their approved visitor list can put money on
+          their account. Get on the visitor list first.
+        </li>
+        <li>
+          <strong>Calls and messages:</strong> set up an account at
+          <a href="https://web.connectnetwork.com/SCDC/" target="_blank" rel="noopener">ConnectNetwork</a>.
+        </li>
+      </ul>
+      <p>
+        See the <a href="https://www.doc.sc.gov/family" target="_blank" rel="noopener">SCDC family page</a>
+        for mail and book rules.
+      </p>
+    </section>
+  </div>
+
+  {
+    helpers.length > 0 && (
+      <section class="section-tight bg-soft" aria-labelledby="helpers-h">
+        <div class="container">
+          <h2 id="helpers-h" class="helpers-h">Local organizations that can help</h2>
+          <div class="grid grid-3">
+            {helpers.map((r) => <ResourceCard resource={r} />)}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section-tight">
+    <div class="container container-narrow">
+      <p class="fam-home">
+        Getting ready for them to come home? See
+        <a href={link('/reentry-support')}>help for coming home after jail or prison</a>.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .fam-top {
+    padding-top: 1.25rem;
+  }
+  .fam-hero {
+    padding-block: 1rem 1.5rem;
+  }
+  .fam-hero .lead {
+    margin-top: 0.8rem;
+  }
+  .fam-checked,
+  .fam-note {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    margin-top: 1.2rem;
+    padding: 0.8rem 1rem;
+    background: var(--blue-50);
+    border: 1px solid var(--blue-200);
+    border-radius: var(--radius-sm);
+    font-size: 0.97rem;
+  }
+  .fam-checked :global(svg),
+  .fam-note :global(svg) {
+    flex: none;
+    margin-top: 3px;
+    color: var(--blue-700);
+  }
+
+  .first-steps {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .first-steps li {
+    display: flex;
+    gap: 1rem;
+    padding: 1.1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--white);
+  }
+  .first-num {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--blue-700);
+    color: #fff;
+    font-weight: 700;
+  }
+  .first-steps h3 {
+    font-size: 1.1rem;
+  }
+  .first-steps p {
+    margin: 0.3rem 0 0;
+    color: var(--slate);
+  }
+  .first-steps li > div {
+    min-width: 0;
+  }
+  .first-btn {
+    margin-top: 0.8rem;
+    min-height: 48px;
+    white-space: normal;
+    text-align: left;
+  }
+
+  .toc-h {
+    font-size: 1.2rem;
+    margin-bottom: 0.7rem;
+  }
+  .toc {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  @media (min-width: 640px) {
+    .toc {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .toc a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 48px;
+    padding: 0.6rem 1rem;
+    background: var(--white);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--blue-900);
+  }
+  .toc a:hover {
+    border-color: var(--blue-500);
+  }
+
+  .fam-body {
+    padding-block: 1rem 2rem;
+  }
+  .fam-section {
+    padding-block: 1.75rem;
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 90px;
+  }
+  .fam-section:last-child {
+    border-bottom: none;
+  }
+  .fam-section h2 {
+    font-size: 1.45rem;
+    margin-bottom: 0.7rem;
+  }
+  .fam-section h3 {
+    font-size: 1.08rem;
+    margin: 1.2rem 0 0.4rem;
+  }
+  .fam-section p,
+  .fam-section ul,
+  .fam-section ol {
+    margin: 0.5rem 0;
+  }
+  .fam-section ul,
+  .fam-section ol {
+    padding-left: 1.3rem;
+  }
+  .fam-section li {
+    margin-block: 0.4rem;
+  }
+  .mail-block {
+    font-style: normal;
+    margin: 0.6rem 0;
+    padding: 0.9rem 1rem;
+    background: var(--bg-soft);
+    border-left: 4px solid var(--sage-500);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    line-height: 1.6;
+  }
+  .helpers-h {
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+  }
+  .fam-home {
+    font-size: 1.05rem;
+  }
+</style>

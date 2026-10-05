@@ -3,7 +3,7 @@ import { activeCategories, RESOURCES } from '../data/resources';
 import { SITE_NAME, AREA } from '../consts';
 import { link } from '../utils/url';
 const cats = activeCategories();
-const year = 2025; // build-time constant; update annually
+const year = new Date().getFullYear(); // stamped at build time
 ---
 
 <footer class="site-footer">
@@ -11,8 +11,8 @@ const year = 2025; // build-time constant; update annually
     <div class="footer-about">
       <p class="footer-brand">{SITE_NAME}</p>
       <p class="footer-tag">
-        A free directory connecting neighbors in {AREA} to {RESOURCES.length} trusted
-        organizations for food, housing, health care, and more.
+        A free guide to help in {AREA}. Start with what is happening, and find a clear
+        next step with {RESOURCES.length} local organizations.
       </p>
       <a href={link('/get-help-now')} class="btn btn-outline footer-help">Need help now?</a>
     </div>

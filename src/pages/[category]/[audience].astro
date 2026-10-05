@@ -129,8 +129,8 @@ const jsonLd = [
       <p class="lead">{audience.blurb}</p>
       <p class="intent-sub">
         Below {count === 1 ? 'is' : 'are'} <strong>{count}</strong> {catLower}
-        {count === 1 ? 'resource' : 'resources'} in Greenville County ready to help. Tap
-        <strong>Call</strong> to reach them directly.
+        {count === 1 ? 'resource' : 'resources'} in Greenville County ready to help. Each one
+        shows what to do next.
       </p>
     </div>
   </section>
@@ -138,7 +138,7 @@ const jsonLd = [
   {
     showCrisis && (
       <div class="container container-narrow crisis-wrap">
-        <CrisisLines variant="compact" />
+        <CrisisLines variant="strip" />
       </div>
     )
   }

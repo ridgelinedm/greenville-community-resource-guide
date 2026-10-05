@@ -6,7 +6,7 @@ import { link } from '../utils/url';
 import { SITE_NAME, AREA } from '../consts';
 
 const title = 'About This Guide';
-const description = `How the ${SITE_NAME} works: a free, organized directory of ${RESOURCES.length} community resources in ${AREA}, built so anyone can find help for their exact situation.`;
+const description = `How ${SITE_NAME} works: a free guide to ${RESOURCES.length} community resources in ${AREA}, built so anyone can find help for their exact situation.`;
 const catCount = activeCategories().length;
 const intentCount = validIntents().length;
 ---
@@ -18,10 +18,11 @@ const intentCount = validIntents().length;
 
   <section class="section">
     <div class="container container-narrow prose">
-      <h1>About this guide</h1>
+      <h1>About {SITE_NAME}</h1>
       <p class="lead">
-        The {SITE_NAME} is a free, easy-to-use directory that connects neighbors in {AREA}
-        to the help they need — food, housing, health care, mental-health support, and more.
+        {SITE_NAME} is a free guide for neighbors in {AREA}. You start with what is
+        happening to you, and it helps you find a clear next step: food, housing, health care,
+        mental-health support, re-entry, and help when someone you love is in jail.
       </p>
 
       <h2>Why we built it</h2>
