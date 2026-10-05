@@ -1,6 +1,6 @@
 # Greenville Community Resource Guide
 
-🟢 **Live:** https://ridgelinedm.github.io/greenville-community-resource-guide/
+🟢 **Live:** https://place2turn.com/
 &nbsp;·&nbsp; Repo: `ridgelinedm/greenville-community-resource-guide` (GitHub Pages)
 
 A free, accessible, and trustworthy directory of food, housing, medical, mental-health, and
@@ -102,18 +102,16 @@ This repo is **already deployed** to GitHub Pages at the URL above. Pages source
 *GitHub Actions*, and `.github/workflows/deploy.yml` builds + deploys on every push to `main`.
 Nothing else to do — just push.
 
-`astro.config.mjs` is configured for the project-page subfolder:
+The custom domain is set in **Settings → Pages → Custom domain** (no `CNAME` file is needed
+when deploying with Actions) and verified for the `ridgelinedm` org. `astro.config.mjs` uses:
 ```js
-site: 'https://ridgelinedm.github.io',
-base: '/greenville-community-resource-guide',
+site: 'https://place2turn.com',
+base: '/',
 ```
 
-### Moving to a custom domain later
-
-1. In **Settings → Pages → Custom domain**, add your domain (creates a `CNAME` file) and set the
-   DNS records GitHub shows you.
-2. In `astro.config.mjs`, set `site` to your domain and change `base` back to `'/'`.
-3. Update the `Sitemap:` line in `public/robots.txt`. Push — done.
+DNS for `place2turn.com`: four A records on `@` (185.199.108–111.153), `www` CNAME to
+`ridgelinedm.github.io`, and the `_github-pages-challenge-ridgelinedm` TXT record for org
+verification. Keep all of these when moving the domain between registrars or DNS hosts.
 
 ### Option B — Vercel (simplest, zero config)
 
