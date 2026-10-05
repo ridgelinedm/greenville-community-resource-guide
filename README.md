@@ -23,7 +23,7 @@ The site is organized around two dimensions pulled from the data:
 
 1. **Service** — what an org provides (Food, Housing, Medical, Mental Health, …)
 2. **Audience** — who it serves, parsed from the CSV's `Serves` column (Veteran, Domestic
-   Violence, Youth, Re-entry, Families, Spanish-speaking, …)
+   Violence, Youth, Re-entry, Families, …)
 
 Crossing them produces **intent pages** like _“Housing & Shelter for Survivors of Domestic
 Violence in Greenville, SC.”_ Each has empathetic copy, the filtered + relevance-ranked
@@ -49,8 +49,8 @@ Categories are typed so they're handled correctly for SEO (no thin/doorway pages
 - **Service categories** (`intents: true`) — Food, Housing, Medical, Mental Health & Recovery,
   and Financial & Crisis Assistance. These generate the Category × Audience intent pages and are
   featured on the homepage.
-- **Population categories** (`population: '<audience>'`) — Veteran, Youth, Family, HIV/AIDS,
-  Re-entry, and Immigrant services. The category _is_ the audience, so instead of redundant
+- **Population categories** (`population: '<audience>'`) — Veteran, Youth, Family, and
+  Re-entry services. The category _is_ the audience, so instead of redundant
   cross pages, each is a **hub** that links out (spoke links) to that population's intent pages
   across every service category.
 - **Standalone hubs** — Legal, Transportation, Education, Community: clean directory hubs.

@@ -32,8 +32,6 @@ export type CategoryKey =
   | 'veterans'
   | 'youth'
   | 'family'
-  | 'hiv'
-  | 'immigrant'
   | 'education'
   | 'community';
 
@@ -44,10 +42,7 @@ export type AudienceKey =
   | 'seniors'
   | 'domestic-violence'
   | 'reentry'
-  | 'lgbtq'
-  | 'spanish-speaking'
   | 'no-id'
-  | 'hiv'
   | 'substance-use'
   | 'women'
   | 'men';
@@ -282,26 +277,6 @@ export const AUDIENCES: Audience[] = [
       'Re-entry support for people rebuilding after incarceration — including organizations that help with ID, jobs, housing, and a fresh start.',
   },
   {
-    key: 'lgbtq',
-    slug: 'lgbtq',
-    label: 'LGBTQ+ Community',
-    short: 'LGBTQ+ individuals',
-    matchers: ['LGBTQ+', 'Transgender', 'Non-Binary'],
-    icon: 'heart',
-    blurb:
-      'Affirming, welcoming resources for LGBTQ+, transgender, and non-binary individuals.',
-  },
-  {
-    key: 'spanish-speaking',
-    slug: 'spanish-speaking',
-    label: 'Spanish Speakers',
-    short: 'Spanish-speaking individuals and families',
-    matchers: ['Spanish Speaking'],
-    icon: 'immigrant',
-    blurb:
-      'Organizations that offer services in Spanish or have Spanish-speaking staff. Recursos disponibles en español.',
-  },
-  {
     key: 'no-id',
     slug: 'no-id',
     label: 'People Without a Photo ID',
@@ -310,16 +285,6 @@ export const AUDIENCES: Audience[] = [
     icon: 'info',
     blurb:
       'You can still get help without a photo ID. These organizations serve people who do not currently have identification, and several can help you obtain one.',
-  },
-  {
-    key: 'hiv',
-    slug: 'hiv',
-    label: 'People Living with HIV/AIDS',
-    short: 'people living with HIV/AIDS',
-    matchers: ['AIDS/HIV'],
-    icon: 'hiv',
-    blurb:
-      'Compassionate medical care and support services for people living with HIV/AIDS, including testing, treatment, and case management.',
   },
   {
     key: 'substance-use',
@@ -495,28 +460,6 @@ export const CATEGORIES: Category[] = [
     icon: 'family',
   },
   {
-    key: 'hiv',
-    slug: 'hiv-aids-support',
-    label: 'HIV/AIDS Support',
-    tagline: 'Testing, treatment, and support',
-    intro:
-      'Confidential HIV testing, medical treatment, and support services delivered with dignity and respect.',
-    core: false,
-    population: 'hiv',
-    icon: 'hiv',
-  },
-  {
-    key: 'immigrant',
-    slug: 'immigrant-latino-services',
-    label: 'Immigrant & Latino Services',
-    tagline: 'Recursos para la comunidad latina',
-    intro:
-      'Help connecting immigrant and Latino community members to healthcare, legal aid, education, and emergency resources — with Spanish-speaking support.',
-    core: false,
-    population: 'spanish-speaking',
-    icon: 'immigrant',
-  },
-  {
     key: 'education',
     slug: 'education',
     label: 'Education',
@@ -579,11 +522,21 @@ export const NEXT_STEP_BY_CATEGORY: Record<CategoryKey, string> = {
   veterans: 'Call to ask how they can help you or your family.',
   youth: 'Call to ask how to get help.',
   family: 'Call to ask how they can help your family.',
-  hiv: 'Call to ask about testing, care, or support.',
-  immigrant: 'Call to ask how they can help. Spanish is spoken.',
   education: 'Call to ask how to enroll or get support.',
   community: 'Call or visit to ask how they can help.',
 };
+
+/**
+ * Organizations in the CSV that the site does not show right now. Their rows
+ * stay in the CSV so they are easy to bring back.
+ */
+const EXCLUDED = new Set(['Hispanic Alliance']);
+
+/**
+ * "Serves" tokens for groups the site does not focus on right now. They are
+ * left out of each organization's "who they serve" list.
+ */
+const HIDDEN_SERVES = ['LGBTQ+', 'Transgender', 'Non-Binary', 'Spanish Speaking', 'AIDS/HIV'];
 
 const META: Record<string, Meta> = {
   'Online Food Resource Guide': {
@@ -597,7 +550,7 @@ const META: Record<string, Meta> = {
       'Investigates housing and employment discrimination complaints and connects residents to community resources.',
   },
   'Infinite Possibilities Inc.': {
-    categories: ['reentry', 'hiv'],
+    categories: ['reentry'],
     description:
       'Wraparound support, transportation, and re-entry help, with services for people living with HIV.',
   },
@@ -611,11 +564,11 @@ const META: Record<string, Meta> = {
     description: 'Volunteers sharing free hot vegetarian meals in public spaces, open to all.',
   },
   'Upstate Circle of Friends': {
-    categories: ['hiv', 'medical'],
+    categories: ['medical'],
     description: 'Peer support and outreach for people affected by HIV/AIDS.',
   },
   'Unity Health on Main': {
-    categories: ['medical', 'hiv'],
+    categories: ['medical'],
     description:
       'Community health clinic offering primary care, HIV testing, and treatment regardless of ability to pay.',
   },
@@ -714,7 +667,7 @@ const META: Record<string, Meta> = {
     nextStep: 'Check their website for meal times, then walk in.',
   },
   'Project Care Inc.': {
-    categories: ['hiv', 'medical'],
+    categories: ['medical'],
     description: 'Support services for people living with HIV/AIDS.',
   },
   'Place of Hope Day Shelter - United Ministries': {
@@ -772,11 +725,6 @@ const META: Record<string, Meta> = {
     categories: ['mental-health', 'housing'],
     description:
       'Two-year residential program for women survivors of trafficking, addiction, and exploitation.',
-  },
-  'Hispanic Alliance': {
-    categories: ['immigrant'],
-    description:
-      'Connects the Latino community to health care, legal aid, education, and emergency resources.',
   },
   'Harvest Hope Food Bank': {
     categories: ['food'],
@@ -860,7 +808,7 @@ const META: Record<string, Meta> = {
     description: 'Re-entry, housing, and veteran services across South Carolina.',
   },
   'AID Upstate': {
-    categories: ['hiv', 'medical'],
+    categories: ['medical'],
     description: 'HIV/AIDS medical care, testing, and support services.',
   },
   'Catholic Charities Upstate': {
@@ -885,7 +833,7 @@ function loadResources(): Resource[] {
   return rows
     .map((row) => {
       const name = row['Organization'];
-      if (!name) return null;
+      if (!name || EXCLUDED.has(name)) return null;
       const meta = META[name];
       if (!meta) {
         // Surface mapping gaps loudly during build instead of silently dropping data.
@@ -894,7 +842,7 @@ function loadResources(): Resource[] {
       const serves = (row['Serves'] || '')
         .split(';')
         .map((s) => s.trim())
-        .filter(Boolean);
+        .filter((s) => s && !HIDDEN_SERVES.some((h) => s.includes(h)));
       const { audiences, everyone } = parseAudiences(serves);
       const { website, url } = normalizeWebsite(row['Website'] || '');
       const address = row['Address']?.trim() || null;
@@ -1017,10 +965,7 @@ const AUDIENCE_KEYWORDS: Record<AudienceKey, string[]> = {
   seniors: ['senior', 'older adult'],
   'domestic-violence': ['domestic violence', 'safe harbor', 'abuse', 'survivor'],
   reentry: ['re-entry', 'reentry', 'returning', 'incarcerat', 'prison', 'jail', 'time served'],
-  lgbtq: ['lgbtq', 'transgender', 'queer'],
-  'spanish-speaking': ['hispanic', 'latino', 'spanish', 'español', 'immigrant'],
   'no-id': ['no questions', 'without', 'identification', 'no id'],
-  hiv: ['hiv', 'aids'],
   'substance-use': ['recovery', 'addiction', 'substance', 'detox', 'sober', 'phoenix'],
   women: ['women', 'woman', "women's"],
   men: ['men', "men's", 'overcomers', 'rescue mission'],

@@ -364,8 +364,14 @@ const description = `Search and filter all ${RESOURCES.length} community resourc
   (function init() {
     const p = new URLSearchParams(location.search);
     state.q = p.get('q') || '';
-    state.category = p.get('category') || '';
-    state.audience = p.get('audience') || '';
+    // Ignore filter values with no matching chip (e.g. old links to a removed
+    // group), so a stale link never shows an empty list with nothing to clear.
+    const known = (group: string, value: string) =>
+      Boolean(value && document.querySelector(`.filter-chips[data-group="${group}"] .fchip[data-value="${value}"]`));
+    const cat = p.get('category') || '';
+    const aud = p.get('audience') || '';
+    state.category = known('category', cat) ? cat : '';
+    state.audience = known('audience', aud) ? aud : '';
     q.value = state.q;
     if (state.category) {
       document
