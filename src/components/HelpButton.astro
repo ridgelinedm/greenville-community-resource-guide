@@ -1,0 +1,68 @@
+---
+/**
+ * Floating "Need help now?" button, bottom-right on every page except Get help
+ * now. Opens a short list of numbers. Source: design system components/help/HelpButton.jsx.
+ */
+import Icon from './Icon.astro';
+import { link } from '../utils/url';
+
+const lines = [
+  { number: '911', tel: '911', text: 'In danger or a medical emergency', urgent: true },
+  { number: '988', tel: '988', text: 'Call or text if you are in crisis', urgent: true },
+  { number: '211', tel: '211', text: 'Not sure who to call? A real person helps' },
+];
+---
+
+<div class="helpfab" data-helpfab>
+  <div class="helpfab-panel" id="helpfab-panel" role="dialog" aria-label="Get help now" hidden>
+    <div class="helpfab-head">
+      <h2>Get help now</h2>
+      <button type="button" class="helpfab-close" aria-label="Close" data-helpfab-close>
+        <Icon name="x" size={18} />
+      </button>
+    </div>
+    {
+      lines.map((l) => (
+        <a href={`tel:${l.tel}`} class:list={['helpfab-line', { urgent: l.urgent }]}>
+          <span>
+            <b>{l.number}</b>
+            <small>{l.text}</small>
+          </span>
+          <Icon name="phone" size={20} />
+        </a>
+      ))
+    }
+    <a href={link('/get-help-now')} class="helpfab-more">
+      More crisis lines and same-day help <Icon name="arrow-right" size={16} />
+    </a>
+  </div>
+  <button type="button" class="helpfab-btn" aria-expanded="false" aria-controls="helpfab-panel" data-helpfab-toggle>
+    <span data-icon-open><Icon name="phone" size={20} /></span>
+    <span data-icon-close hidden><Icon name="x" size={20} /></span>
+    Need help now?
+  </button>
+</div>
+
+<script>
+  const root = document.querySelector('[data-helpfab]');
+  const panel = root?.querySelector<HTMLElement>('#helpfab-panel');
+  const btn = root?.querySelector<HTMLButtonElement>('[data-helpfab-toggle]');
+  const set = (open: boolean) => {
+    if (!panel || !btn) return;
+    panel.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+    btn.querySelector<HTMLElement>('[data-icon-open]')!.hidden = open;
+    btn.querySelector<HTMLElement>('[data-icon-close]')!.hidden = !open;
+  };
+  btn?.addEventListener('click', () => set(panel?.hidden ?? false));
+  root?.querySelector('[data-helpfab-close]')?.addEventListener('click', () => {
+    set(false);
+    btn?.focus();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && panel && !panel.hidden) {
+      set(false);
+      btn?.focus();
+    }
+  });
+</script>

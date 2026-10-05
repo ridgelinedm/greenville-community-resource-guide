@@ -1,86 +1,45 @@
 ---
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
-import { CORE_CATEGORIES } from '../data/resources';
 import { link } from '../utils/url';
+
+const needs = [
+  { href: '/get-help-now', icon: 'alert', label: 'I need help right now' },
+  { href: '/someone-i-love-is-in-jail', icon: 'family', label: 'Someone I love is in jail' },
+  { href: '/housing-shelter', icon: 'housing', label: 'I need a place to stay' },
+  { href: '/food-assistance', icon: 'food', label: 'I need food' },
+];
 ---
 
-<Base title="Page Not Found" noindex>
-  <section class="section nf">
-    <div class="container container-narrow nf-inner">
-      <p class="eyebrow">Error 404</p>
+<Base title="Page not found" noindex>
+  <section class="section">
+    <div class="container container-narrow">
+      <p class="sechead-tag"><span class="light-dot"></span>Page not found</p>
       <h1>We couldn't find that page</h1>
-      <p class="lead">
-        The page may have moved — but the help you're looking for is still here. Try searching
-        or pick a category below.
+      <p class="lead" style="margin-top:0.8rem;max-width:50ch">
+        It may have moved, but the help you're looking for is still here. Search, or pick what's
+        going on.
       </p>
 
-      <form class="nf-search" action={link('/resources')} method="get" role="search">
-        <Icon name="search" size={20} class="nf-search-icon" />
-        <label for="nf-q" class="sr-only">Search resources</label>
-        <input id="nf-q" name="q" type="search" placeholder="Search resources…" autocomplete="off" />
+      <form class="searchbar" action={link('/resources')} method="get" role="search" style="margin-top:1.75rem">
+        <Icon name="search" size={22} class="searchbar-icon" />
+        <label for="nf-q" class="sr-only">Search by need or organization name</label>
+        <input id="nf-q" name="q" type="search" placeholder="Search a need or a name" autocomplete="off" />
         <button type="submit" class="btn btn-primary">Search</button>
       </form>
 
-      <div class="nf-cats">
+      <ul class="needs" style="margin-top:2rem">
         {
-          CORE_CATEGORIES.map((c) => (
-            <a href={link(`/${c.slug}`)} class="chip chip-sage">
-              <Icon name={c.icon} size={15} />
-              {c.label}
-            </a>
+          needs.map((n) => (
+            <li>
+              <a href={link(n.href)} class="need">
+                <span class="need-icon"><Icon name={n.icon} size={22} /></span>
+                <span>{n.label}</span>
+              </a>
+            </li>
           ))
         }
-        <a href={link('/get-help-now')} class="chip"><Icon name="phone" size={15} /> Get help now</a>
-      </div>
+      </ul>
     </div>
   </section>
 </Base>
-
-<style>
-  .nf {
-    text-align: center;
-  }
-  .nf-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .nf .lead {
-    margin-top: 0.6rem;
-    max-width: 50ch;
-  }
-  .nf-search {
-    margin-top: 1.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: #fff;
-    border: 1.5px solid var(--line-strong);
-    border-radius: var(--radius-full);
-    padding: 0.4rem 0.4rem 0.4rem 1rem;
-    box-shadow: var(--shadow-sm);
-    width: 100%;
-    max-width: 520px;
-  }
-  .nf-search-icon {
-    color: var(--slate-light);
-    flex: none;
-  }
-  .nf-search input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font: inherit;
-    padding: 0.5rem 0;
-    background: transparent;
-    min-width: 0;
-  }
-  .nf-cats {
-    margin-top: 1.75rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    justify-content: center;
-  }
-</style>

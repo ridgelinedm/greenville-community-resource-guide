@@ -2,7 +2,9 @@
 import Base from '../../layouts/Base.astro';
 import Icon from '../../components/Icon.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import ResourceCard from '../../components/ResourceCard.astro';
+import ResourceList from '../../components/ResourceList.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
 import CrisisLines from '../../components/CrisisLines.astro';
 import {
   validIntents,
@@ -108,7 +110,7 @@ const jsonLd = [
 ---
 
 <Base title={title} description={description} jsonLd={jsonLd}>
-  <div class="container intent-top">
+  <div class="container page-top">
     <Breadcrumbs
       items={[
         { label: 'Home', href: '/' },
@@ -118,54 +120,35 @@ const jsonLd = [
     />
   </div>
 
-  <section class="intent-hero">
-    <div class="container container-narrow">
-      <div class="intent-badge">
-        <Icon name={audience.icon} size={16} /> {audience.label}
-        <span aria-hidden="true">·</span>
-        <Icon name={category.icon} size={16} /> {category.label}
+  <section class="cat-head">
+    <div class="container cat-head-inner">
+      <span class="situation-icon" aria-hidden="true"><Icon name={category.icon} size={30} /></span>
+      <div>
+        <p class="sechead-tag"><span class="light-dot"></span>For {audience.short}</p>
+        <h1>{category.heading}</h1>
+        <p class="lead">{audience.blurb}</p>
       </div>
-      <h1>{category.label} for {audience.label} in {AREA_SHORT}</h1>
-      <p class="lead">{audience.blurb}</p>
-      <p class="intent-sub">
-        Below {count === 1 ? 'is' : 'are'} <strong>{count}</strong> {catLower}
-        {count === 1 ? 'resource' : 'resources'} in Greenville County ready to help. Each one
-        shows what to do next.
-      </p>
     </div>
   </section>
 
-  {
-    showCrisis && (
-      <div class="container container-narrow crisis-wrap">
-        <CrisisLines variant="strip" />
-      </div>
-    )
-  }
-
-  <section class="section-tight">
+  <section class="section-tight" aria-label={`${category.label} for ${audience.label}`}>
     <div class="container">
-      <div class="grid grid-3">
-        {resources.map((r) => <ResourceCard resource={r} contextCategory={category.key} />)}
-      </div>
+      {showCrisis && <div class="list-strip"><CrisisLines variant="strip" /></div>}
+      <ResourceList resources={resources} contextCategory={category.key} filters={false} />
     </div>
   </section>
 
   {
     related.length > 0 && (
-      <section class="section-tight bg-sage">
+      <section class="section-tight bg-soft" style="border-top:1px solid var(--line)">
         <div class="container">
-          <h2 class="block-h">More help for {audience.label.toLowerCase()}</h2>
-          <ul class="related-list">
+          <SectionHeader tag={`More for ${audience.short}`} title="Other help that fits" />
+          <ul class="needs">
             {related.map((i) => (
               <li>
-                <a href={link(`/${i.category.slug}/${i.audience.slug}`)} class="related-chip">
-                  <Icon name={i.category.icon} size={18} />
-                  <span>
-                    <span class="related-cat">{i.category.label}</span>
-                    <span class="related-meta">for {audience.label.toLowerCase()}</span>
-                  </span>
-                  <Icon name="arrow-right" size={16} class="related-arrow" />
+                <a href={link(`/${i.category.slug}/${i.audience.slug}`)} class="need">
+                  <span class="need-icon"><Icon name={i.category.icon} size={22} /></span>
+                  <span>{i.category.label}</span>
                 </a>
               </li>
             ))}
@@ -175,9 +158,9 @@ const jsonLd = [
     )
   }
 
-  <section class="section">
+  <section class="section-tight">
     <div class="container container-narrow">
-      <h2 class="block-h">Frequently asked questions</h2>
+      <h2 style="font-size:1.5rem;margin-bottom:1rem">Common questions</h2>
       <div class="faqs">
         {
           faqs.map((f) => (
@@ -188,142 +171,21 @@ const jsonLd = [
           ))
         }
       </div>
-
-      <div class="intent-foot">
-        <a href={link(`/${category.slug}`)} class="btn btn-outline">
-          <Icon name="arrow-right" size={16} /> See all {catLower} resources
+      <p style="margin-top:1.5rem">
+        <a href={link(`/${category.slug}`)} class="sechead-link">
+          See every place for {catLower} <Icon name="arrow-right" size={16} />
         </a>
-        <a href={link('/get-help-now')} class="btn btn-ghost">Need help right now?</a>
-      </div>
+      </p>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container">
+      <CtaBand
+        title="Didn't see the right one?"
+        text="Call 211 and tell them what's going on. They'll point you to someone near you."
+        secondary={null}
+      />
     </div>
   </section>
 </Base>
-
-<style>
-  .intent-top {
-    padding-top: 1.25rem;
-  }
-  .intent-hero {
-    padding-block: 1.5rem 1.75rem;
-  }
-  .intent-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    background: var(--sage-50);
-    border: 1px solid var(--sage-100);
-    color: var(--sage-700);
-    border-radius: var(--radius-full);
-    padding: 0.4rem 0.9rem;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-  }
-  .intent-hero h1 {
-    max-width: 20ch;
-  }
-  .intent-hero .lead {
-    margin-top: 0.9rem;
-  }
-  .intent-sub {
-    margin-top: 0.8rem;
-    color: var(--slate);
-  }
-  .crisis-wrap {
-    margin-bottom: 0.25rem;
-  }
-  .block-h {
-    margin-bottom: 1.3rem;
-  }
-  .related-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 0.75rem;
-  }
-  .related-chip {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: #fff;
-    border: 1px solid var(--sage-100);
-    border-radius: var(--radius);
-    padding: 0.9rem 1.1rem;
-    text-decoration: none;
-    color: var(--ink);
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-  }
-  .related-chip:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
-    border-color: var(--sage-300);
-  }
-  .related-chip > :global(svg:first-child) {
-    color: var(--sage-600);
-    flex: none;
-  }
-  .related-cat {
-    display: block;
-    font-weight: 700;
-    color: var(--blue-900);
-    line-height: 1.2;
-  }
-  .related-meta {
-    display: block;
-    font-size: 0.85rem;
-    color: var(--slate);
-  }
-  .related-arrow {
-    margin-left: auto;
-    color: var(--blue-500);
-  }
-  .faqs {
-    display: grid;
-    gap: 0.75rem;
-  }
-  .faq {
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    background: #fff;
-    overflow: hidden;
-  }
-  .faq summary {
-    cursor: pointer;
-    padding: 1.05rem 1.25rem;
-    font-weight: 700;
-    color: var(--blue-900);
-    list-style: none;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    align-items: center;
-  }
-  .faq summary::-webkit-details-marker {
-    display: none;
-  }
-  .faq summary::after {
-    content: '+';
-    font-size: 1.4rem;
-    color: var(--sage-600);
-    font-weight: 400;
-    line-height: 1;
-  }
-  .faq[open] summary::after {
-    content: '–';
-  }
-  .faq p {
-    padding: 0 1.25rem 1.2rem;
-    color: var(--slate);
-    margin: 0;
-  }
-  .intent-foot {
-    margin-top: 2rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-  }
-</style>

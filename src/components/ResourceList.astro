@@ -1,0 +1,82 @@
+---
+/**
+ * A grid of action cards with an optional "Who it's for" filter bar and a
+ * live count (design system FilterBar + category page pattern). Filtering is
+ * client-side; with JavaScript off, every card shows.
+ */
+import ResourceCard from './ResourceCard.astro';
+import { AUDIENCE_FILTERS, type AudienceKey, type Resource } from '../data/resources';
+
+interface Props {
+  resources: Resource[];
+  contextCategory?: string;
+  /** Audience to leave out of the filters, e.g. Re-entry on the re-entry page. */
+  excludeAudience?: AudienceKey;
+  filters?: boolean;
+}
+const { resources, contextCategory, excludeAudience, filters = true } = Astro.props;
+
+// Only offer filters that leave at least two places, so no button leads to
+// a near-empty list.
+const options = filters
+  ? AUDIENCE_FILTERS.filter(
+      (f) => f.key !== excludeAudience && resources.filter((r) => r.audiences.includes(f.key)).length >= 2
+    ).slice(0, 6)
+  : [];
+const countText = (n: number) => `${n} ${n === 1 ? 'place' : 'places'} can help`;
+---
+
+<div data-rlist>
+  <div class="list-bar">
+    {
+      options.length > 0 && (
+        <div class="filterbar" role="group" aria-label="Who it's for">
+          <button type="button" class="filter" aria-pressed="true" data-filter="">
+            Everyone
+          </button>
+          {options.map((o) => (
+            <button type="button" class="filter" aria-pressed="false" data-filter={o.key}>
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )
+    }
+    <p class="list-count" aria-live="polite" data-count>{countText(resources.length)}</p>
+  </div>
+  <div class="grid grid-3">
+    {
+      resources.map((r) => (
+        <div class="rlist-item" data-auds={r.audiences.join(' ')}>
+          <ResourceCard resource={r} contextCategory={contextCategory} />
+        </div>
+      ))
+    }
+  </div>
+  <p class="note" data-empty hidden>
+    <span>Nothing here matches that filter yet. Try <strong>Everyone</strong>, or call <a href="tel:211">211</a> and ask.</span>
+  </p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-rlist]').forEach((root) => {
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-auds]'));
+    const count = root.querySelector('[data-count]');
+    const empty = root.querySelector<HTMLElement>('[data-empty]');
+    buttons.forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.filter ?? '';
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        let shown = 0;
+        items.forEach((el) => {
+          const match = !key || el.dataset.auds!.split(' ').includes(key);
+          el.hidden = !match;
+          if (match) shown++;
+        });
+        if (count) count.textContent = `${shown} ${shown === 1 ? 'place' : 'places'} can help`;
+        if (empty) empty.hidden = shown > 0;
+      })
+    );
+  });
+</script>

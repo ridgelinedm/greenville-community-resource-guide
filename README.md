@@ -77,6 +77,20 @@ least 2 matching resources (`MIN_RESOURCES_FOR_INTENT`).
 
 ---
 
+## Design system
+
+The look comes from the **A Place to Turn design system**: warm paper, navy ink, a
+single honey "porch light" accent for next steps, Young Serif headings, and
+Atkinson Hyperlegible Next for text. `src/styles/global.css` holds the system's
+tokens and component styles. Its class names match the components in
+`src/components/`, so keep those sections in sync with the system, and put
+site-only additions in the last section of the file. The logo lives in
+`src/components/Logo.astro`. The favicon and social image are in `public/`.
+
+Photos: the system has photo frames, but there are no real Greenville photos
+yet, so the homepage hero uses the logo's turn shape instead. Don't use stock
+photos as stand-ins.
+
 ## Develop & build
 
 ```bash

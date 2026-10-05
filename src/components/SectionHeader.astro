@@ -1,0 +1,35 @@
+---
+/**
+ * Section opener: porch-light tag, serif headline, optional sentence, optional
+ * side link. Source: design system components/core/SectionHeader.jsx.
+ */
+import Icon from './Icon.astro';
+import { link } from '../utils/url';
+
+interface Props {
+  tag?: string;
+  title: string;
+  text?: string;
+  linkLabel?: string;
+  href?: string;
+  id?: string;
+  as?: 'h1' | 'h2' | 'h3';
+}
+const { tag, title, text, linkLabel, href = '/', id, as = 'h2' } = Astro.props;
+const H = as;
+---
+
+<div class="sechead">
+  <div class="sechead-main">
+    {tag && <p class="sechead-tag"><span class="light-dot"></span>{tag}</p>}
+    <H id={id}>{title}</H>
+    {text && <p>{text}</p>}
+  </div>
+  {
+    linkLabel && (
+      <a class="sechead-link" href={link(href)}>
+        {linkLabel} <Icon name="arrow-right" size={16} />
+      </a>
+    )
+  }
+</div>

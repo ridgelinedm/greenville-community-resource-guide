@@ -11,6 +11,7 @@ import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import ResourceCard from '../components/ResourceCard.astro';
+import CtaBand from '../components/CtaBand.astro';
 import { getResource, type Resource } from '../data/resources';
 import { AREA } from '../consts';
 import { link } from '../utils/url';
@@ -18,16 +19,20 @@ import { link } from '../utils/url';
 const CHECKED_ON = 'October 5, 2026';
 const JAIL_INFO = { display: '864-467-2330', tel: '8644672330' };
 
-const steps = [
-  { id: 'find', title: 'Find out where they are' },
-  { id: 'bond', title: 'Bond: getting them out' },
-  { id: 'talk', title: 'Talk to them: calls and mail' },
-  { id: 'visit', title: 'Visit them' },
-  { id: 'money', title: 'Put money on their account' },
-  { id: 'court', title: 'Court dates and a lawyer' },
-  { id: 'medicine', title: 'If they need medicine' },
-  { id: 'family', title: 'Help for you and your family' },
-  { id: 'prison', title: 'If they are in a state prison' },
+// Sticky section tabs (design system SectionTabs). Short labels so the bar
+// scrolls less on phones.
+const tabs = [
+  { id: 'start', label: 'Start here' },
+  { id: 'find', label: 'Find them' },
+  { id: 'bond', label: 'Bond' },
+  { id: 'talk', label: 'Calls and mail' },
+  { id: 'visit', label: 'Visits' },
+  { id: 'money', label: 'Money' },
+  { id: 'court', label: 'Court' },
+  { id: 'medicine', label: 'Medicine' },
+  { id: 'family', label: 'Your family' },
+  { id: 'prison', label: 'State prison' },
+  { id: 'help', label: 'Who can help' },
 ];
 
 const helpers = ['time-served', 'nami-greenville', 'south-carolina-legal-services']
@@ -71,11 +76,11 @@ const faq = {
   description="What to do when someone you love is arrested in Greenville County: find where they are, bond, phone calls, mail, visits, money, court, and help for your family."
   jsonLd={faq}
 >
-  <div class="container fam-top">
+  <div class="container page-top">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Someone I love is in jail' }]} />
   </div>
 
-  <section class="fam-hero">
+  <section class="journey-head">
     <div class="container container-narrow">
       <h1>Someone you love was arrested or is in jail</h1>
       <p class="lead">
@@ -83,7 +88,7 @@ const faq = {
         through what to do, one step at a time. You don't need to read all of it. Start with
         the first three steps below.
       </p>
-      <p class="fam-checked">
+      <p class="note">
         <Icon name="info" size={18} />
         <span>
           We checked this against official county and state websites on {CHECKED_ON}. Jail
@@ -95,71 +100,81 @@ const faq = {
     </div>
   </section>
 
-  <section class="section-tight" aria-labelledby="first-h">
+  <nav class="sectabs" aria-label="On this page" data-sectabs>
+    <div class="container sectabs-inner">
+      <ul class="sectabs-list">
+        {tabs.map((t) => <li><a href={`#${t.id}`}>{t.label}</a></li>)}
+      </ul>
+      <div class="sectabs-aside">
+        <span class="light-dot"></span><span data-progress-label>0 of 3 first steps done</span>
+      </div>
+    </div>
+  </nav>
+
+  <section class="section-tight" id="start">
     <div class="container container-narrow">
-      <h2 id="first-h">Start with these three things</h2>
-      <ol class="first-steps">
+      <h2>Start with these three things</h2>
+      <p class="muted" style="margin-top:0.4rem">
+        Tick each one off as you go. We'll remember on this device.
+      </p>
+      <div class="progress" aria-live="polite">
+        <div class="progress-bar"><span data-progress-bar style="width:0%"></span></div>
+        <span class="progress-text" data-progress-text>0 of 3 done</span>
+      </div>
+      <ol class="first-steps" data-first-steps="apt-jail-first-steps">
         <li>
-          <span class="first-num" aria-hidden="true">1</span>
+          <span class="first-num" aria-hidden="true"><span data-num>1</span><span data-check hidden><Icon name="check" size={18} /></span></span>
           <div>
             <h3>Look them up</h3>
             <p>
               The county's inmate search shows if they are being held, their charges, and their
               bond.
             </p>
-            <a class="btn btn-primary first-btn" href="https://app.greenvillecounty.org/inmate_search.htm" target="_blank" rel="noopener">
-              <Icon name="search" size={18} /> Search the county jail
-              <span class="sr-only">(opens in a new tab)</span>
-            </a>
+            <div class="first-actions">
+              <a class="btn btn-primary first-btn" href="https://app.greenvillecounty.org/inmate_search.htm" target="_blank" rel="noopener">
+                <Icon name="search" size={18} /> Search the county jail
+                <span class="sr-only">(opens in a new tab)</span>
+              </a>
+              <button type="button" class="first-check" aria-pressed="false"><Icon name="check" size={16} /><span>Mark as done</span></button>
+            </div>
           </div>
         </li>
         <li>
-          <span class="first-num" aria-hidden="true">2</span>
+          <span class="first-num" aria-hidden="true"><span data-num>2</span><span data-check hidden><Icon name="check" size={18} /></span></span>
           <div>
             <h3>Set up a phone account so they can call you</h3>
             <p>
-              They can't get collect calls on a cell phone. Set up a prepaid Securus account
-              so your phone can take their calls.
+              They can't get collect calls on a cell phone. Set up a prepaid Securus account so
+              your phone can take their calls.
             </p>
-            <a class="btn btn-primary first-btn" href="tel:18008446591">
-              <Icon name="phone" size={18} /> Call Securus: 1&#8209;800&#8209;844&#8209;6591
-            </a>
+            <div class="first-actions">
+              <a class="btn btn-primary first-btn" href="tel:18008446591">
+                <Icon name="phone" size={18} /> Call Securus: 1&#8209;800&#8209;844&#8209;6591
+              </a>
+              <button type="button" class="first-check" aria-pressed="false"><Icon name="check" size={16} /><span>Mark as done</span></button>
+            </div>
           </div>
         </li>
         <li>
-          <span class="first-num" aria-hidden="true">3</span>
+          <span class="first-num" aria-hidden="true"><span data-num>3</span><span data-check hidden><Icon name="check" size={18} /></span></span>
           <div>
             <h3>If they take medicine, tell the jail</h3>
             <p>
-              Send the jail's medical form so their medicine or mental-health care isn't
-              missed. <a href="#medicine">Here's how</a>.
+              Send the jail's medical form so their medicine or mental-health care isn't missed.
+              <a href="#medicine">Here's how</a>.
             </p>
+            <div class="first-actions">
+              <button type="button" class="first-check" aria-pressed="false"><Icon name="check" size={16} /><span>Mark as done</span></button>
+            </div>
           </div>
         </li>
       </ol>
     </div>
   </section>
 
-  <section class="section-tight bg-soft" aria-labelledby="toc-h">
-    <div class="container container-narrow">
-      <h2 id="toc-h" class="toc-h">What do you need to know?</h2>
-      <ul class="toc">
-        {
-          steps.map((s) => (
-            <li>
-              <a href={`#${s.id}`}>
-                {s.title} <Icon name="chevron-right" size={18} />
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
-
-  <div class="container container-narrow fam-body">
+  <div class="container container-narrow journey-body">
     <!-- Source: greenvillecounty.org/DetentionCenter/FAQ.aspx, ContactUs.aspx -->
-    <section id="find" class="fam-section">
+    <section id="find" class="journey-section">
       <h2>Find out where they are</h2>
       <p>
         Most people arrested in Greenville County go to the <strong>Greenville County
@@ -184,7 +199,7 @@ const faq = {
     <!-- Sources: greenvillecounty.org/MagistrateCourts/bondcourt.aspx;
          greenvillecounty.org/clerkofcourt/OrdersForBail.aspx; DetentionCenter/FAQ.aspx;
          sccourts.org General Sessions FAQ -->
-    <section id="bond" class="fam-section">
+    <section id="bond" class="journey-section">
       <h2>Bond: getting them out</h2>
       <p>
         A judge usually sets bond within <strong>24 hours</strong> of the arrest, at Central
@@ -198,7 +213,7 @@ const faq = {
         <li><strong>10% cash:</strong> sometimes the judge lets you pay 10% instead of using a bondsman.</li>
         <li><strong>Bondsman (surety):</strong> a bondsman usually charges 10–15% of the bond. You don't get that fee back.</li>
       </ul>
-      <p class="fam-note">
+      <p class="note">
         <Icon name="info" size={18} />
         <span>
           <strong>Call and ask where to pay.</strong> Ask the bond court office at
@@ -214,7 +229,7 @@ const faq = {
     </section>
 
     <!-- Sources: greenvillecounty.org/DetentionCenter/Telephone.aspx, Mail.aspx -->
-    <section id="talk" class="fam-section">
+    <section id="talk" class="journey-section">
       <h2>Talk to them: calls and mail</h2>
       <h3>Phone calls</h3>
       <ul>
@@ -249,7 +264,7 @@ const faq = {
     </section>
 
     <!-- Source: greenvillecounty.org/DetentionCenter/Visitation.aspx -->
-    <section id="visit" class="fam-section">
+    <section id="visit" class="journey-section">
       <h2>Visit them</h2>
       <ul>
         <li>They can put up to <strong>3 adults</strong> on their visitor list. You must be on it.</li>
@@ -258,7 +273,7 @@ const faq = {
         <li>Visits are first come, first served. You sign up in person that day.</li>
         <li>Phones, bags, and tobacco aren't allowed. Lockers are available. Dress modestly.</li>
       </ul>
-      <p class="fam-note">
+      <p class="note">
         <Icon name="info" size={18} />
         <span>
           Visiting hours depend on which building they are in. Call
@@ -268,7 +283,7 @@ const faq = {
     </section>
 
     <!-- Sources: greenvillecounty.org/DetentionCenter/Money.aspx, Commissary.aspx -->
-    <section id="money" class="fam-section">
+    <section id="money" class="journey-section">
       <h2>Put money on their account</h2>
       <p>Money on their account lets them buy snacks, hygiene items, and other things from the jail store.</p>
       <ul>
@@ -290,7 +305,7 @@ const faq = {
     </section>
 
     <!-- Sources: greenvillecounty.org/ClerkOfCourt/CourtDates.aspx; greenvilledefender.com/faq.asp -->
-    <section id="court" class="fam-section">
+    <section id="court" class="journey-section">
       <h2>Court dates and a lawyer</h2>
       <h3>Find their court date</h3>
       <ul>
@@ -316,7 +331,7 @@ const faq = {
     </section>
 
     <!-- Source: greenvillecounty.org/DetentionCenter/Medical.aspx -->
-    <section id="medicine" class="fam-section">
+    <section id="medicine" class="journey-section">
       <h2>If they need medicine</h2>
       <ol>
         <li>
@@ -336,7 +351,7 @@ const faq = {
 
     <!-- Sources: dss.sc.gov/contact-dss/upstate-region/greenville/;
          unitedwaygc.org/get-help; namigreenvillesc.org/resources/family-member-arrested/ -->
-    <section id="family" class="fam-section">
+    <section id="family" class="journey-section">
       <h2>Help for you and your family</h2>
       <h3>If there are children</h3>
       <ul>
@@ -364,7 +379,7 @@ const faq = {
     </section>
 
     <!-- Source: doc.sc.gov/family -->
-    <section id="prison" class="fam-section">
+    <section id="prison" class="journey-section">
       <h2>If they are in a state prison</h2>
       <p>
         After sentencing, some people move to a state prison run by the SC Department of
@@ -399,9 +414,9 @@ const faq = {
 
   {
     helpers.length > 0 && (
-      <section class="section-tight bg-soft" aria-labelledby="helpers-h">
+      <section class="section-tight bg-soft" id="help">
         <div class="container">
-          <h2 id="helpers-h" class="helpers-h">Local organizations that can help</h2>
+          <h2 style="font-size:1.7rem;margin-bottom:1.25rem">Local organizations that can help</h2>
           <div class="grid grid-3">
             {helpers.map((r) => <ResourceCard resource={r} />)}
           </div>
@@ -411,166 +426,79 @@ const faq = {
   }
 
   <section class="section-tight">
-    <div class="container container-narrow">
-      <p class="fam-home">
-        Getting ready for them to come home? See
-        <a href={link('/reentry-support')}>help for coming home after jail or prison</a>.
-      </p>
+    <div class="container">
+      <CtaBand
+        title="Getting ready for them to come home?"
+        text="ID, a place to stay, food, work, and people who have been there."
+        primary={{ label: 'See coming-home help', href: '/reentry-support' }}
+        secondary={{ label: 'Call 211', href: 'tel:211' }}
+      />
     </div>
   </section>
 </Base>
 
-<style>
-  .fam-top {
-    padding-top: 1.25rem;
-  }
-  .fam-hero {
-    padding-block: 1rem 1.5rem;
-  }
-  .fam-hero .lead {
-    margin-top: 0.8rem;
-  }
-  .fam-checked,
-  .fam-note {
-    display: flex;
-    gap: 0.6rem;
-    align-items: flex-start;
-    margin-top: 1.2rem;
-    padding: 0.8rem 1rem;
-    background: var(--blue-50);
-    border: 1px solid var(--blue-200);
-    border-radius: var(--radius-sm);
-    font-size: 0.97rem;
-  }
-  .fam-checked :global(svg),
-  .fam-note :global(svg) {
-    flex: none;
-    margin-top: 3px;
-    color: var(--blue-700);
-  }
+<script>
+  // Checkable first steps (design system FirstSteps): progress is saved in
+  // this browser only, and the page works the same if storage is blocked.
+  document.querySelectorAll<HTMLOListElement>('[data-first-steps]').forEach((list) => {
+    const key = list.dataset.firstSteps!;
+    const items = Array.from(list.children) as HTMLLIElement[];
+    let done: number[] = [];
+    try {
+      done = JSON.parse(localStorage.getItem(key) || '[]');
+    } catch {}
+    const render = () => {
+      items.forEach((li, i) => {
+        const on = done.includes(i);
+        li.classList.toggle('done', on);
+        li.querySelector<HTMLElement>('[data-num]')!.hidden = on;
+        li.querySelector<HTMLElement>('[data-check]')!.hidden = !on;
+        const btn = li.querySelector<HTMLButtonElement>('.first-check')!;
+        btn.setAttribute('aria-pressed', String(on));
+        btn.querySelector('span')!.textContent = on ? 'Done' : 'Mark as done';
+      });
+      const n = done.length;
+      const pct = items.length ? (n / items.length) * 100 : 0;
+      document.querySelectorAll<HTMLElement>('[data-progress-bar]').forEach((b) => (b.style.width = `${pct}%`));
+      document.querySelectorAll('[data-progress-text]').forEach((t) => (t.textContent = `${n} of ${items.length} done`));
+      document.querySelectorAll('[data-progress-label]').forEach((t) => (t.textContent = `${n} of ${items.length} first steps done`));
+    };
+    items.forEach((li, i) =>
+      li.querySelector('.first-check')?.addEventListener('click', () => {
+        done = done.includes(i) ? done.filter((x) => x !== i) : [...done, i];
+        try {
+          localStorage.setItem(key, JSON.stringify(done));
+        } catch {}
+        render();
+      })
+    );
+    render();
+  });
 
-  .first-steps {
-    list-style: none;
-    margin: 1rem 0 0;
-    padding: 0;
-    display: grid;
-    gap: 1rem;
-  }
-  .first-steps li {
-    display: flex;
-    gap: 1rem;
-    padding: 1.1rem;
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius);
-    background: var(--white);
-  }
-  .first-num {
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    flex: none;
-    border-radius: 50%;
-    background: var(--blue-700);
-    color: #fff;
-    font-weight: 700;
-  }
-  .first-steps h3 {
-    font-size: 1.1rem;
-  }
-  .first-steps p {
-    margin: 0.3rem 0 0;
-    color: var(--slate);
-  }
-  .first-steps li > div {
-    min-width: 0;
-  }
-  .first-btn {
-    margin-top: 0.8rem;
-    min-height: 48px;
-    white-space: normal;
-    text-align: left;
-  }
-
-  .toc-h {
-    font-size: 1.2rem;
-    margin-bottom: 0.7rem;
-  }
-  .toc {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 0.5rem;
-  }
-  @media (min-width: 640px) {
-    .toc {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  .toc a {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 48px;
-    padding: 0.6rem 1rem;
-    background: var(--white);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    text-decoration: none;
-    color: var(--blue-900);
-  }
-  .toc a:hover {
-    border-color: var(--blue-500);
-  }
-
-  .fam-body {
-    padding-block: 1rem 2rem;
-  }
-  .fam-section {
-    padding-block: 1.75rem;
-    border-bottom: 1px solid var(--line);
-    scroll-margin-top: 90px;
-  }
-  .fam-section:last-child {
-    border-bottom: none;
-  }
-  .fam-section h2 {
-    font-size: 1.45rem;
-    margin-bottom: 0.7rem;
-  }
-  .fam-section h3 {
-    font-size: 1.08rem;
-    margin: 1.2rem 0 0.4rem;
-  }
-  .fam-section p,
-  .fam-section ul,
-  .fam-section ol {
-    margin: 0.5rem 0;
-  }
-  .fam-section ul,
-  .fam-section ol {
-    padding-left: 1.3rem;
-  }
-  .fam-section li {
-    margin-block: 0.4rem;
-  }
-  .mail-block {
-    font-style: normal;
-    margin: 0.6rem 0;
-    padding: 0.9rem 1rem;
-    background: var(--bg-soft);
-    border-left: 4px solid var(--sage-500);
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    line-height: 1.6;
-  }
-  .helpers-h {
-    font-size: 1.35rem;
-    margin-bottom: 1rem;
-  }
-  .fam-home {
-    font-size: 1.05rem;
-  }
-</style>
+  // Sticky section tabs: highlight the section in view.
+  document.querySelectorAll<HTMLElement>('[data-sectabs]').forEach((nav) => {
+    const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+    const targets = links.map((a) => document.getElementById(a.hash.slice(1)));
+    const update = () => {
+      let cur = 0;
+      targets.forEach((el, i) => {
+        if (el && el.getBoundingClientRect().top - 140 <= 0) cur = i;
+      });
+      links.forEach((a, i) => {
+        if (i === cur) {
+          a.setAttribute('aria-current', 'true');
+        } else {
+          a.removeAttribute('aria-current');
+        }
+      });
+      // Keep the active tab visible in the scrolling bar on phones.
+      const active = links[cur];
+      const list = active?.closest('ul');
+      if (list && active && (active.offsetLeft < list.scrollLeft || active.offsetLeft + active.offsetWidth > list.scrollLeft + list.clientWidth)) {
+        list.scrollTo({ left: active.offsetLeft - 16 });
+      }
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+  });
+</script>

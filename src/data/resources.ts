@@ -102,6 +102,10 @@ export interface Category {
   population?: AudienceKey;
   /** Short label for the header nav; falls back to `label`. */
   nav?: string;
+  /** Page heading in the visitor's words, e.g. "Find a place to stay". */
+  heading: string;
+  /** One-sentence lead under the heading. */
+  lead: string;
 }
 
 export interface Audience {
@@ -225,6 +229,8 @@ export const AUDIENCES: Audience[] = [
     icon: 'veterans',
     blurb:
       'Resources for veterans and their families — including organizations that understand military service and can help with benefits, housing, and care.',
+    heading: 'Help for veterans',
+    lead: 'Housing, benefits, health care, and work for veterans and their families.',
   },
   {
     key: 'families',
@@ -245,6 +251,8 @@ export const AUDIENCES: Audience[] = [
     icon: 'youth',
     blurb:
       'Support for young people (roughly 18–24) navigating life without a parent or guardian, including youth-focused shelters and drop-in centers.',
+    heading: 'Help for young people',
+    lead: 'Shelter, drop-in centers, and support for teens and young adults.',
   },
   {
     key: 'seniors',
@@ -275,6 +283,8 @@ export const AUDIENCES: Audience[] = [
     icon: 'reentry',
     blurb:
       'Re-entry support for people rebuilding after incarceration — including organizations that help with ID, jobs, housing, and a fresh start.',
+    heading: 'Help for coming home',
+    lead: 'ID, a place to stay, food, work, and people who have been there.',
   },
   {
     key: 'no-id',
@@ -317,6 +327,23 @@ export const AUDIENCES: Audience[] = [
 ];
 
 const AUDIENCE_BY_KEY = new Map(AUDIENCES.map((a) => [a.key, a]));
+
+/**
+ * "Who it's for" filter buttons on list pages, in the order they appear,
+ * phrased the way a visitor would describe themselves.
+ */
+export const AUDIENCE_FILTERS: { key: AudienceKey; label: string }[] = [
+  { key: 'no-id', label: 'No photo ID needed' },
+  { key: 'reentry', label: 'Coming home from jail or prison' },
+  { key: 'families', label: 'Families with children' },
+  { key: 'veterans', label: 'Veterans' },
+  { key: 'seniors', label: 'Older adults' },
+  { key: 'youth', label: 'Young adults (18–24)' },
+  { key: 'domestic-violence', label: 'Leaving domestic violence' },
+  { key: 'substance-use', label: 'In recovery' },
+  { key: 'women', label: 'Women' },
+  { key: 'men', label: 'Men' },
+];
 export const getAudience = (key: string): Audience | undefined =>
   AUDIENCE_BY_KEY.get(key as AudienceKey);
 
@@ -346,6 +373,8 @@ export const CATEGORIES: Category[] = [
     intents: true,
     nav: 'Food',
     icon: 'food',
+    heading: 'Get help with food',
+    lead: 'Meals today, groceries this week, and help signing up for SNAP.',
   },
   {
     key: 'housing',
@@ -358,6 +387,8 @@ export const CATEGORIES: Category[] = [
     intents: true,
     nav: 'Housing',
     icon: 'housing',
+    heading: 'Find a place to stay',
+    lead: 'Shelter tonight, and help keeping or finding a home.',
   },
   {
     key: 'medical',
@@ -370,6 +401,8 @@ export const CATEGORIES: Category[] = [
     intents: true,
     nav: 'Medical',
     icon: 'medical',
+    heading: 'See a doctor or get medicine',
+    lead: 'Free and low-cost clinics. You can get care without insurance.',
   },
   {
     key: 'mental-health',
@@ -382,6 +415,8 @@ export const CATEGORIES: Category[] = [
     intents: true,
     nav: 'Mental Health',
     icon: 'mental-health',
+    heading: 'Find someone to talk to',
+    lead: 'Counseling, support groups, and help to stop drinking or using.',
   },
   {
     key: 'financial',
@@ -394,6 +429,8 @@ export const CATEGORIES: Category[] = [
     intents: true,
     nav: 'Financial',
     icon: 'financial',
+    heading: 'Get help with rent and bills',
+    lead: 'Help with rent, utilities, prescriptions, and signing up for benefits.',
   },
   {
     key: 'legal',
@@ -404,6 +441,8 @@ export const CATEGORIES: Category[] = [
       'Free civil legal assistance for low-income residents — including eviction defense, benefits appeals, family law, and protection from discrimination.',
     core: false,
     icon: 'legal',
+    heading: 'Get legal help',
+    lead: 'Free help with eviction, benefits, family court, and more.',
   },
   {
     key: 'transportation',
@@ -414,6 +453,8 @@ export const CATEGORIES: Category[] = [
       'Public transit, reduced fares, and affordable bikes to help you get to work, appointments, and services across Greenville.',
     core: false,
     icon: 'transportation',
+    heading: 'Find a way to get around',
+    lead: 'Buses, reduced fares, and affordable bikes.',
   },
   {
     key: 'reentry',
@@ -458,6 +499,8 @@ export const CATEGORIES: Category[] = [
     core: false,
     population: 'families',
     icon: 'family',
+    heading: 'Help for families',
+    lead: 'Housing, food, and support for parents and children.',
   },
   {
     key: 'education',
@@ -468,6 +511,8 @@ export const CATEGORIES: Category[] = [
       'Educational support and workforce training — keeping students enrolled and helping adults build new skills and careers.',
     core: false,
     icon: 'education',
+    heading: 'School and job training',
+    lead: 'Keep kids in school, and learn skills for a new job.',
   },
   {
     key: 'community',
@@ -478,6 +523,8 @@ export const CATEGORIES: Category[] = [
       'Welcoming community spaces and advocates — free internet and computers, job-search help, civil-rights support, and a place to start.',
     core: false,
     icon: 'community',
+    heading: 'Places to go and people who help',
+    lead: 'Free computers and internet, job-search help, and a warm place to be.',
   },
 ];
 

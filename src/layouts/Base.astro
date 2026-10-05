@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import JsonLd from '../components/JsonLd.astro';
+import HelpButton from '../components/HelpButton.astro';
 import { SITE_NAME, SITE_DESCRIPTION } from '../consts';
 import { link, absolute, stripBase } from '../utils/url';
 
@@ -17,6 +18,8 @@ interface Props {
   /** Append `| {SITE_NAME}` to <title>. */
   bareTitle?: boolean;
   jsonLd?: Record<string, any> | Record<string, any>[];
+  /** Hide the floating "Need help now?" button (on Get help now itself). */
+  hideHelpButton?: boolean;
 }
 
 const {
@@ -28,6 +31,7 @@ const {
   noindex = false,
   bareTitle = false,
   jsonLd,
+  hideHelpButton = false,
 } = Astro.props;
 
 const origin = Astro.site?.origin ?? '';
@@ -47,7 +51,7 @@ const ogImage = image.startsWith('http') ? image : absolute(origin, image);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href={link('/favicon.svg')} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={link('/favicon.svg')} />
-    <meta name="theme-color" content="#14395b" />
+    <meta name="theme-color" content="#0f2a43" />
 
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
@@ -73,7 +77,7 @@ const ogImage = image.startsWith('http') ? image : absolute(origin, image);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=Atkinson+Hyperlegible:wght@400;700&display=swap"
       rel="stylesheet"
     />
 
@@ -86,5 +90,6 @@ const ogImage = image.startsWith('http') ? image : absolute(origin, image);
       <slot />
     </main>
     <Footer />
+    {!hideHelpButton && <HelpButton />}
   </body>
 </html>

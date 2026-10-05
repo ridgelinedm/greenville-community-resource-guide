@@ -1,0 +1,38 @@
+---
+/**
+ * A Place to Turn logo. The mark is a path that rises and turns into an
+ * overhang, sheltering a porch-light dot at the exact center of the curve.
+ * The wordmark is always lowercase and ends in a porch-light period.
+ * Source: design system components/brand/Logo.jsx.
+ */
+interface Props {
+  variant?: 'lockup' | 'mark' | 'wordmark';
+  tone?: 'ink' | 'reversed';
+  /** Wordmark font size in px; the mark scales from it. */
+  size?: number;
+}
+const { variant = 'lockup', tone = 'ink', size = 28 } = Astro.props;
+const ink = tone === 'reversed' ? 'var(--paper)' : 'var(--blue-900)';
+const markSize = variant === 'mark' ? size * 1.5 : size * 1.45;
+---
+
+{
+  variant === 'mark' ? (
+    <svg viewBox="0 0 64 64" width={markSize} height={markSize} role="img" aria-label="A Place to Turn" class="logo-mark">
+      <path d="M13 55V36A23 23 0 0 1 36 13H53" fill="none" stroke={ink} stroke-width="9" stroke-linecap="round" />
+      <circle cx="36" cy="36" r="8" fill="var(--porch-500)" />
+    </svg>
+  ) : (
+    <span class="logo" aria-label="A Place to Turn" style={`gap:${size * 0.45}px`}>
+      {variant === 'lockup' && (
+        <svg viewBox="0 0 64 64" width={markSize} height={markSize} aria-hidden="true" class="logo-mark">
+          <path d="M13 55V36A23 23 0 0 1 36 13H53" fill="none" stroke={ink} stroke-width="9" stroke-linecap="round" />
+          <circle cx="36" cy="36" r="8" fill="var(--porch-500)" />
+        </svg>
+      )}
+      <span class="logo-word" style={`font-size:${size}px;color:${ink}`} aria-hidden="true">
+        a place to turn<span class="brand-dot">.</span>
+      </span>
+    </span>
+  )
+}
