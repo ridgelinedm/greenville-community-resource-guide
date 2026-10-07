@@ -1,7 +1,7 @@
 ---
 /**
- * Navy closing band: a big serif line, up to two actions, and the logo mark
- * cropped off the corner. Holds the page's one honey (.btn-porch) button.
+ * Closing line under a rule: a serif headline, a sentence, one button and an
+ * optional text link.
  * Source: design system components/sections/CtaBand.jsx.
  */
 import Icon from './Icon.astro';
@@ -28,21 +28,17 @@ const href = (h: string) => (h.startsWith('/') ? link(h) : h);
 ---
 
 <section class="ctaband">
-  <svg class="ctaband-mark" viewBox="0 0 64 64" aria-hidden="true">
-    <path d="M13 55V36A23 23 0 0 1 36 13H53" fill="none" stroke="var(--blue-800)" stroke-width="9" stroke-linecap="round" />
-    <circle cx="36" cy="36" r="8" fill="var(--porch-500)" />
-  </svg>
   <h2>{title}</h2>
   {text && <p>{text}</p>}
   <div class="ctaband-actions">
     {
       primary && (
-        <a href={href(primary.href)} class="btn btn-porch btn-tall">
+        <a href={href(primary.href)} class="btn btn-primary btn-tall">
           {primary.icon && <Icon name={primary.icon} size={18} />}
           {primary.label}
         </a>
       )
     }
-    {secondary && <a href={href(secondary.href)} class="btn btn-reversed btn-tall">{secondary.label}</a>}
+    {secondary && <a href={href(secondary.href)} class="tlink">{secondary.label}</a>}
   </div>
 </section>

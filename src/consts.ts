@@ -2,11 +2,11 @@
 export const SITE_NAME = 'A Place to Turn';
 export const SITE_SHORT = 'A Place to Turn';
 /** Supporting line shown under the name in the header and footer. */
-export const SITE_SUBTITLE = 'Greenville community resources';
+export const SITE_SUBTITLE = 'Greenville & the Upstate, SC';
 export const SITE_TAGLINE = 'Find out what to do next when you need help in Greenville, SC';
 export const SITE_DESCRIPTION =
-  'A free guide to help in Greenville County, South Carolina. Start with what is happening, and find a clear next step for food, housing, health care, re-entry, and help when someone you love is in jail.';
-export const AREA = 'Greenville County, South Carolina';
+  'A free guide to help in Greenville, South Carolina and the Upstate. Start with what is happening, and find a clear next step for food, housing, health care, re-entry, and help when someone you love is in jail.';
+export const AREA = 'Greenville, South Carolina and the Upstate';
 export const AREA_SHORT = 'Greenville, SC';
 
 /** Crisis / emergency numbers surfaced across the site. */

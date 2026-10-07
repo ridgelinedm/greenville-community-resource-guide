@@ -1,0 +1,248 @@
+---
+/**
+ * "Not sure what you need?" guided walkthrough. A page-curl tab peels up from
+ * the bottom-right corner of every page; clicking it (or any [data-guide-open]
+ * button) slides the guide in from the right like a turned page.
+ *
+ * Three questions: are you safe → what do you need most → does any of these
+ * fit you. The answer is one page to open and the first two places to call.
+ * Every route is built from the same data as the pages, so links never 404.
+ */
+import Icon from './Icon.astro';
+import {
+  AUDIENCE_FILTERS,
+  getCategory,
+  intentsForCategory,
+  resourcesInCategory,
+  resourcesForIntent,
+  type CategoryKey,
+  type Resource,
+} from '../data/resources';
+import { link } from '../utils/url';
+
+const NEEDS: { key: string; label: string; cat?: CategoryKey; href?: string; title?: string }[] = [
+  { key: 'housing', label: 'A place to stay', cat: 'housing' },
+  { key: 'food', label: 'Food', cat: 'food' },
+  { key: 'jail', label: 'Someone I love was arrested or is in jail', href: '/someone-i-love-is-in-jail', title: 'When someone you love is in jail' },
+  { key: 'reentry', label: "I'm coming home, or just got out", cat: 'reentry' },
+  { key: 'financial', label: 'Help with rent or bills', cat: 'financial' },
+  { key: 'medical', label: 'A doctor or medicine', cat: 'medical' },
+  { key: 'mental-health', label: 'Someone to talk to, or help to stop drinking or using', cat: 'mental-health' },
+  { key: 'legal', label: 'Legal help', cat: 'legal' },
+  { key: 'transportation', label: 'A ride, or a way to get around', cat: 'transportation' },
+  { key: 'education', label: 'School or job training', cat: 'education' },
+];
+
+const place = (r: Resource) => ({
+  name: r.name,
+  href: link(`/resource/${r.slug}`),
+  step: r.nextStep ? { label: r.nextStep.label, href: r.nextStep.href } : null,
+});
+
+const routes = NEEDS.map((n) => {
+  if (!n.cat) return { key: n.key, label: n.label, page: { href: link(n.href!), title: n.title! }, places: [], fits: [] };
+  const cat = getCategory(n.cat)!;
+  return {
+    key: n.key,
+    label: n.label,
+    page: { href: link(`/${cat.slug}`), title: cat.heading },
+    places: resourcesInCategory(n.cat).slice(0, 2).map(place),
+    fits: intentsForCategory(n.cat).map((i) => ({
+      // The directory's filter labels are the plainest wording ("No photo ID needed").
+      label: AUDIENCE_FILTERS.find((f) => f.key === i.audience.key)?.label ?? i.audience.label,
+      page: { href: link(`/${cat.slug}/${i.audience.slug}`), title: `${cat.heading}, for ${i.audience.short}` },
+      places: resourcesForIntent(n.cat!, i.audience.key).slice(0, 2).map(place),
+    })),
+  };
+});
+---
+
+<button type="button" class="curl" data-guide-open aria-haspopup="dialog">
+  <span class="curl-under" aria-hidden="true">
+    <span class="curl-label">Not sure<br />what you need?</span>
+  </span>
+  <span class="curl-flap" aria-hidden="true"></span>
+  <span class="sr-only">Not sure what you need? Answer a few questions and we'll point you to help.</span>
+</button>
+
+<dialog class="guide" aria-labelledby="guide-h" data-guide>
+  <div class="guide-inner">
+  <div class="guide-top">
+    <p class="guide-count" data-guide-count></p>
+    <button type="button" class="guide-close" data-guide-close>
+      <Icon name="x" size={20} /><span class="sr-only">Close</span>
+    </button>
+  </div>
+
+  <div class="guide-body" data-guide-body>
+    <!-- Step 1 -->
+    <section data-step="safe">
+      <h2 id="guide-h" class="guide-q">First, are you safe right now?</h2>
+      <div class="guide-opts">
+        <button type="button" class="guide-opt" data-go="need">Yes, I'm safe</button>
+        <button type="button" class="guide-opt guide-opt-urgent" data-go="danger">No, I'm in danger or might hurt myself</button>
+      </div>
+    </section>
+
+    <section data-step="danger" hidden>
+      <h2 class="guide-q">Please reach out right now.</h2>
+      <p class="guide-lead">These are free and open day or night. You don't have to explain everything. Just say you need help.</p>
+      <div class="guide-calls">
+        <a href="tel:911" class="guide-call guide-call-urgent"><b>911</b><span>In danger, or a medical emergency</span></a>
+        <a href="tel:988" class="guide-call guide-call-urgent"><b>988</b><span>Thinking about hurting yourself. Call or text.</span></a>
+      </div>
+      <a href={link('/get-help-now')} class="tlink">More crisis lines and same-day help</a>
+    </section>
+
+    <!-- Step 2 -->
+    <section data-step="need" hidden>
+      <h2 class="guide-q">What do you need most today?</h2>
+      <p class="guide-lead">Pick one. You can come back for the rest.</p>
+      <div class="guide-opts">
+        {routes.map((r) => <button type="button" class="guide-opt" data-need={r.key}>{r.label}</button>)}
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section data-step="fit" hidden>
+      <h2 class="guide-q">Do any of these fit you?</h2>
+      <p class="guide-lead">Some places only help certain people. This helps us show the right ones.</p>
+      <div class="guide-opts" data-fit-opts></div>
+    </section>
+
+    <!-- Result -->
+    <section data-step="result" hidden>
+      <h2 class="guide-q">Here's where to start.</h2>
+      <a href="#" class="btn btn-primary btn-tall guide-page" data-result-page></a>
+      <div data-result-places>
+        <h3 class="guide-sub">Places to call first</h3>
+        <ul class="guide-places" data-result-list></ul>
+      </div>
+      <p class="guide-211">
+        Still not sure? Call <a href="tel:211">211</a>. A real person will help you find the right place, day or night.
+      </p>
+    </section>
+  </div>
+
+  <div class="guide-foot">
+    <button type="button" class="tlink" data-guide-back hidden>Back</button>
+    <button type="button" class="tlink" data-guide-restart hidden>Start over</button>
+  </div>
+  </div>
+</dialog>
+
+<script type="application/json" id="guide-data" set:html={JSON.stringify(routes)} />
+
+<script>
+  type Page = { href: string; title: string };
+  type Place = { name: string; href: string; step: { label: string; href: string } | null };
+  type Route = { key: string; label: string; page: Page; places: Place[]; fits: { label: string; page: Page; places: Place[] }[] };
+
+  const dlg = document.querySelector<HTMLDialogElement>('[data-guide]');
+  const dataEl = document.getElementById('guide-data');
+  if (dlg && dataEl) {
+    const routes: Route[] = JSON.parse(dataEl.textContent || '[]');
+    const steps = Array.from(dlg.querySelectorAll<HTMLElement>('[data-step]'));
+    const count = dlg.querySelector<HTMLElement>('[data-guide-count]')!;
+    const back = dlg.querySelector<HTMLButtonElement>('[data-guide-back]')!;
+    const restart = dlg.querySelector<HTMLButtonElement>('[data-guide-restart]')!;
+    const fitOpts = dlg.querySelector<HTMLElement>('[data-fit-opts]')!;
+    const pageBtn = dlg.querySelector<HTMLAnchorElement>('[data-result-page]')!;
+    const placesBox = dlg.querySelector<HTMLElement>('[data-result-places]')!;
+    const list = dlg.querySelector<HTMLElement>('[data-result-list]')!;
+    const COUNTS: Record<string, string> = { safe: 'Question 1 of 3', need: 'Question 2 of 3', fit: 'Question 3 of 3' };
+
+    let history: string[] = [];
+    let route: Route | null = null;
+
+    const show = (name: string, push = true) => {
+      if (push) history.push(name);
+      steps.forEach((s) => (s.hidden = s.dataset.step !== name));
+      count.textContent = COUNTS[name] ?? '';
+      back.hidden = history.length < 2;
+      restart.hidden = history.length < 2;
+      dlg.querySelector<HTMLElement>(`[data-step="${name}"] .guide-q`)?.focus();
+    };
+
+    const result = (page: Page, places: Place[]) => {
+      pageBtn.href = page.href;
+      pageBtn.textContent = `Open: ${page.title}`;
+      list.replaceChildren(
+        ...places.map((p) => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = p.href;
+          a.textContent = p.name;
+          li.append(a);
+          if (p.step) {
+            const s = document.createElement('a');
+            s.href = p.step.href;
+            s.className = 'guide-place-step';
+            s.textContent = p.step.label;
+            li.append(s);
+          }
+          return li;
+        })
+      );
+      placesBox.hidden = places.length === 0;
+      show('result');
+    };
+
+    const choose = (key: string) => {
+      route = routes.find((r) => r.key === key) ?? null;
+      if (!route) return;
+      if (!route.fits.length) return result(route.page, route.places);
+      fitOpts.replaceChildren(
+        ...route.fits.map((f) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'guide-opt';
+          b.textContent = f.label;
+          b.addEventListener('click', () => result(f.page, f.places));
+          return b;
+        }),
+        Object.assign(document.createElement('button'), {
+          type: 'button',
+          className: 'guide-opt guide-opt-quiet',
+          textContent: 'None of these, or not sure',
+          onclick: () => route && result(route.page, route.places),
+        })
+      );
+      show('fit');
+    };
+
+    dlg.querySelectorAll<HTMLButtonElement>('[data-go]').forEach((b) =>
+      b.addEventListener('click', () => show(b.dataset.go!))
+    );
+    dlg.querySelectorAll<HTMLButtonElement>('[data-need]').forEach((b) =>
+      b.addEventListener('click', () => choose(b.dataset.need!))
+    );
+    back.addEventListener('click', () => {
+      history.pop();
+      show(history[history.length - 1] ?? 'safe', false);
+    });
+    restart.addEventListener('click', () => {
+      history = [];
+      show('safe');
+    });
+
+    const open = () => {
+      history = [];
+      show('safe');
+      dlg.showModal();
+    };
+    const close = () => {
+      dlg.classList.add('is-closing');
+      setTimeout(() => {
+        dlg.classList.remove('is-closing');
+        dlg.close();
+      }, 220);
+    };
+    document.querySelectorAll('[data-guide-open]').forEach((el) => el.addEventListener('click', open));
+    dlg.querySelector('[data-guide-close]')?.addEventListener('click', close);
+    // The panel fills .guide-inner, so a click landing on the dialog itself is on the backdrop.
+    dlg.addEventListener('click', (e) => {
+      if (e.target === dlg) close();
+    });
+  }
+</script>

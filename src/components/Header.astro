@@ -1,12 +1,13 @@
 ---
 /**
- * Sticky header: logo | centered menus (a two-column "Find help" panel) |
- * Call 211 + Get help now. Below 1080px the menus collapse into a toggle.
+ * Sticky header: logo + region | centered menus (a two-column "Find help"
+ * panel) | Get help now. Below 1080px the menus collapse into a toggle.
  * Source: design system components/navigation/SiteHeader.jsx.
  */
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
 import { link, stripBase } from '../utils/url';
+import { SITE_SUBTITLE } from '../consts';
 
 const path = stripBase(Astro.url.pathname);
 const isActive = (href: string) => path.startsWith(href);
@@ -32,8 +33,9 @@ const links = [
 
 <header class="site-header">
   <div class="container hdr2">
-    <a href={link('/')} class="brand" aria-label="A Place to Turn, home">
+    <a href={link('/')} class="brand" aria-label={`A Place to Turn, ${SITE_SUBTITLE}, home`}>
       <Logo size={24} />
+      <span class="brand-where" aria-hidden="true">{SITE_SUBTITLE}</span>
     </a>
 
     <ul class="hdr2-menus">
@@ -58,8 +60,7 @@ const links = [
     </ul>
 
     <div class="hdr2-actions">
-      <a href="tel:211" class="btn btn-outline hdr2-call"><Icon name="phone" size={17} /> Call 211</a>
-      <a href={link('/get-help-now')} class="btn btn-sage">Get help now</a>
+      <a href={link('/get-help-now')} class="btn btn-primary hdr2-now">Get help now</a>
       <button type="button" class="hdr2-toggle" aria-expanded="false" aria-controls="mobile-menu" data-mobile-toggle>
         <span data-icon-open><Icon name="menu" size={22} /></span>
         <span data-icon-close hidden><Icon name="x" size={22} /></span>
@@ -99,8 +100,8 @@ const links = [
         </ul>
       </div>
       <div class="hdr2-panel-foot">
-        <span>Not sure? A real person answers <strong>211</strong>, day or night.</span>
-        <a href="tel:211" class="btn btn-primary btn-sm"><Icon name="phone" size={16} /> Call 211</a>
+        <span>Not sure which one fits?</span>
+        <button type="button" class="tlink" data-guide-open aria-haspopup="dialog">Answer 3 quick questions</button>
       </div>
     </div>
   </div>
@@ -137,7 +138,7 @@ const links = [
       </ul>
     </div>
     {links.map((l) => <a href={link(l.href)} class="hdr2-simple">{l.label}</a>)}
-    <a href="tel:211" class="btn btn-primary btn-block btn-tall"><Icon name="phone" size={18} /> Call 211</a>
+    <button type="button" class="tlink" data-guide-open aria-haspopup="dialog">Not sure what you need? Answer 3 quick questions</button>
   </div>
 </header>
 

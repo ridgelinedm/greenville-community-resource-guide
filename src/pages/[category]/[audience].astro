@@ -124,8 +124,7 @@ const jsonLd = [
     <div class="container cat-head-inner">
       <span class="situation-icon" aria-hidden="true"><Icon name={category.icon} size={30} /></span>
       <div>
-        <p class="sechead-tag"><span class="light-dot"></span>For {audience.short}</p>
-        <h1>{category.heading}</h1>
+        <h1>{category.heading}, for {audience.short}</h1>
         <p class="lead">{audience.blurb}</p>
       </div>
     </div>
@@ -142,7 +141,7 @@ const jsonLd = [
     related.length > 0 && (
       <section class="section-tight bg-soft" style="border-top:1px solid var(--line)">
         <div class="container">
-          <SectionHeader tag={`More for ${audience.short}`} title="Other help that fits" />
+          <SectionHeader title={`More help for ${audience.short}`} />
           <ul class="needs">
             {related.map((i) => (
               <li>

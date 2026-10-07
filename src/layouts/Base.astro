@@ -3,7 +3,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import JsonLd from '../components/JsonLd.astro';
-import HelpButton from '../components/HelpButton.astro';
+import Guide from '../components/Guide.astro';
 import { SITE_NAME, SITE_DESCRIPTION } from '../consts';
 import { link, absolute, stripBase } from '../utils/url';
 
@@ -18,8 +18,6 @@ interface Props {
   /** Append `| {SITE_NAME}` to <title>. */
   bareTitle?: boolean;
   jsonLd?: Record<string, any> | Record<string, any>[];
-  /** Hide the floating "Need help now?" button (on Get help now itself). */
-  hideHelpButton?: boolean;
 }
 
 const {
@@ -31,7 +29,6 @@ const {
   noindex = false,
   bareTitle = false,
   jsonLd,
-  hideHelpButton = false,
 } = Astro.props;
 
 const origin = Astro.site?.origin ?? '';
@@ -51,7 +48,7 @@ const ogImage = image.startsWith('http') ? image : absolute(origin, image);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href={link('/favicon.svg')} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={link('/favicon.svg')} />
-    <meta name="theme-color" content="#0f2a43" />
+    <meta name="theme-color" content="#ffffff" />
 
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
@@ -90,6 +87,6 @@ const ogImage = image.startsWith('http') ? image : absolute(origin, image);
       <slot />
     </main>
     <Footer />
-    {!hideHelpButton && <HelpButton />}
+    <Guide />
   </body>
 </html>

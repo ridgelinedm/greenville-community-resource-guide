@@ -1,68 +1,54 @@
 ---
 /**
- * Homepage = "what is happening?" first, directory second. Order follows the
- * design system's PAGE PATTERNS: hero → trust strip → situations + needs →
- * how this guide works → who this is for → search → CTA band.
+ * Homepage = "what is happening?" first, directory second. The hero IS the
+ * picker: situations as an index, needs as a sentence, and the guided
+ * walkthrough for anyone who isn't sure. What the guide is comes after.
  */
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
-import SectionHeader from '../components/SectionHeader.astro';
-import ResourceCard from '../components/ResourceCard.astro';
-import CtaBand from '../components/CtaBand.astro';
-import { RESOURCES, getResource } from '../data/resources';
+import { RESOURCES } from '../data/resources';
 import { SITE_NAME, SITE_DESCRIPTION, AREA } from '../consts';
 import { link, absolute } from '../utils/url';
 
-const panels = [
-  { href: '/get-help-now', title: 'I need help right now', text: 'Crisis lines, a safe place tonight, and what to do first.', urgent: true },
-  { href: '/someone-i-love-is-in-jail', title: 'Someone I love was arrested or is in jail', text: 'Find where they are and how to reach them.' },
-  { href: '/reentry-support', title: "I'm coming home, or just got out", text: 'ID, a place to stay, food, and work.' },
-  { href: '/housing-shelter', title: 'I need a place to stay', text: 'Shelters tonight and help keeping housing.' },
-  { href: '/food-assistance', title: 'I need food', text: 'Meals today and groceries this week.' },
+const situations = [
+  { href: '/get-help-now', title: 'I need help right now', text: 'Crisis lines, a safe place tonight', urgent: true },
+  { href: '/someone-i-love-is-in-jail', title: 'Someone I love was arrested or is in jail', text: 'Find them and reach them' },
+  { href: '/reentry-support', title: "I'm coming home, or just got out", text: 'ID, a place to stay, work' },
+  { href: '/housing-shelter', title: 'I need a place to stay', text: 'Shelters tonight, help with housing' },
+  { href: '/food-assistance', title: 'I need food', text: 'Meals today, groceries this week' },
 ];
 
+// Read as one sentence: "I need … rent money · a doctor · …"
 const needs = [
-  { href: '/financial-assistance', icon: 'financial', label: 'I need help with rent or bills' },
-  { href: '/medical-care', icon: 'medical', label: 'I need a doctor or medicine' },
-  { href: '/mental-health-recovery', icon: 'mental-health', label: "I'm struggling, or want to stop drinking or using" },
-  { href: '/legal-aid', icon: 'legal', label: 'I need legal help' },
-  { href: '/transportation', icon: 'transportation', label: 'I need a way to get around' },
-  { href: '/education', icon: 'education', label: 'I want school or job training' },
-];
-
-const trust = [
-  { label: 'Local organizations', value: String(RESOURCES.length) },
-  { label: 'Cost to you', value: 'Free' },
-  { label: 'Sign-up needed', value: 'None' },
-  { label: '211 answers', value: 'Day or night' },
+  { href: '/financial-assistance', label: 'help with rent or bills' },
+  { href: '/medical-care', label: 'a doctor or medicine' },
+  { href: '/mental-health-recovery', label: 'someone to talk to' },
+  { href: '/mental-health-recovery', label: 'to stop drinking or using' },
+  { href: '/legal-aid', label: 'legal help' },
+  { href: '/transportation', label: 'a ride' },
+  { href: '/education', label: 'school or job training' },
 ];
 
 const audiences = [
   {
-    eyebrow: 'Families and loved ones',
     title: 'When someone you love is locked up',
-    points: ['Find out where they are', 'Set up calls, mail, and visits', 'Help for you and the kids'],
-    action: 'Start here',
+    text: 'Find out where they are, set up calls, mail and visits, and get help for you and the kids.',
+    action: 'Start with jail and family help',
     href: '/someone-i-love-is-in-jail',
   },
   {
-    eyebrow: 'Coming home',
-    title: "When you're getting ready to come home",
-    points: ['Get your ID and papers back', 'A place to stay and food', 'Work, rides, and people who get it'],
+    title: "When you're coming home",
+    text: 'Get your ID and papers back, find a place to stay and food, and find work and people who get it.',
     action: 'See coming-home help',
     href: '/reentry-support',
   },
   {
-    eyebrow: 'Anyone',
-    title: 'When money, health, or housing gets hard',
-    points: ['Rent, bills, and food', 'Doctors and someone to talk to', 'Free legal help'],
-    action: 'Browse all help',
+    title: 'When money, health or housing gets hard',
+    text: 'Rent, bills and food. Doctors and someone to talk to. Free legal help.',
+    action: 'Browse every organization',
     href: '/resources',
   },
 ];
-
-// A real card for the "How this guide works" demo, so it shows the actual format.
-const example = getResource('triune-mercy-center');
 
 const origin = Astro.site?.origin ?? '';
 const jsonLd = [
@@ -92,206 +78,86 @@ const jsonLd = [
 ];
 ---
 
-<Base title={`${SITE_NAME}: Find help and your next step in Greenville, SC`} bareTitle jsonLd={jsonLd}>
-  <section class="apt-hero">
-    <div class="container apt-hero-grid">
-      <div>
-        <p class="sechead-tag"><span class="light-dot"></span>{AREA}</p>
-        <h1 class="apt-hero-h">Need help? Start here.</h1>
-        <p class="lead" style="margin-top:1.1rem;max-width:44ch">
-          You don't need to know who to call. Pick what's going on, and we'll show you what to do
-          next. It's free, and you don't have to sign up.
-        </p>
-        <div class="apt-hero-actions">
-          <a href="#start" class="btn btn-primary btn-tall">
-            Start with what's happening <Icon name="arrow-right" size={18} />
-          </a>
-          <a href="tel:211" class="btn btn-outline btn-tall"><Icon name="phone" size={18} /> Call 211</a>
-        </div>
-        <p class="note note-emergency" style="margin-top:1.5rem;max-width:540px">
-          <span>
-            <strong>In danger right now?</strong> Call <a href="tel:911">911</a>. Thinking about
-            hurting yourself? Call or text <a href="tel:988">988</a>, any time.
-          </span>
-        </p>
-      </div>
-      <div class="apt-hero-art" aria-hidden="true">
-        <div class="turn-frame">
-          <svg viewBox="0 0 64 64">
-            <path d="M13 55V36A23 23 0 0 1 36 13H53" fill="none" stroke="var(--blue-700)" stroke-width="9" stroke-linecap="round" />
-            <circle cx="36" cy="36" r="8" fill="var(--porch-500)" />
-          </svg>
-        </div>
-      </div>
-    </div>
+<Base title={`${SITE_NAME}: Find help in Greenville, SC and the Upstate`} bareTitle jsonLd={jsonLd}>
+  <section class="hero" aria-labelledby="hero-h">
     <div class="container">
-      <dl class="trust">
-        {
-          trust.map((t) => (
-            <div class="trust-cell">
-              <dt class="trust-label">{t.label}</dt>
-              <dd class="trust-value" style="margin:0">{t.value}</dd>
-            </div>
-          ))
-        }
-      </dl>
-    </div>
-  </section>
+      <p class="hero-where">
+        <Icon name="map-pin" size={18} />
+        Free help in <strong>Greenville, South Carolina</strong> and the Upstate
+      </p>
+      <h1 id="hero-h" class="hero-h">What's happening?</h1>
+      <p class="hero-lead">Pick the one that sounds like you. We'll show you who can help and what to do next.</p>
 
-  <section class="section" id="start" aria-labelledby="start-h">
-    <div class="container">
-      <SectionHeader
-        id="start-h"
-        tag="Start here"
-        title="What's happening?"
-        text="Pick the one that sounds most like you. You can always come back."
-        linkLabel="See all organizations"
-        href="/resources"
-      />
-      <ul class="spanels">
+      <ol class="index">
         {
-          panels.map((p) => (
+          situations.map((s) => (
             <li>
-              <a href={link(p.href)} class:list={['spanel', { 'spanel-urgent': p.urgent }]}>
-                <span class="spanel-go"><Icon name="arrow-right" size={18} /></span>
-                <span class="spanel-text">
-                  <span class="spanel-t">{p.title}</span>
-                  <span class="spanel-s">{p.text}</span>
-                </span>
+              <a href={link(s.href)} class:list={['index-row', { 'index-urgent': s.urgent }]}>
+                <span class="index-t">{s.title}</span>
+                <span class="index-s">{s.text}</span>
+                <span class="index-go" aria-hidden="true"><Icon name="arrow-right" size={22} /></span>
               </a>
             </li>
           ))
         }
-      </ul>
+        <li>
+          <button type="button" class="index-row index-guide" data-guide-open aria-haspopup="dialog">
+            <span class="index-t">I'm not sure what I need</span>
+            <span class="index-s">Answer 3 quick questions</span>
+            <span class="index-go" aria-hidden="true"><Icon name="arrow-right" size={22} /></span>
+          </button>
+        </li>
+      </ol>
 
-      <h3 style="font-size:1.35rem;margin:2.5rem 0 1rem">Or tell us what you need</h3>
-      <ul class="needs">
+      <p class="needline">
+        <span class="needline-lead">Or, I need</span>
         {
-          needs.map((n) => (
-            <li>
-              <a href={link(n.href)} class="need">
-                <span class="need-icon"><Icon name={n.icon} size={22} /></span>
-                <span>{n.label}</span>
-              </a>
-            </li>
+          needs.map((n, i) => (
+            <>
+              <a href={link(n.href)}>{n.label}</a>
+              {i < needs.length - 1 && <span class="needline-sep" aria-hidden="true">/</span>}
+            </>
           ))
         }
-      </ul>
+      </p>
+
+      <p class="hero-danger">
+        In danger? Call <a href="tel:911">911</a>. Thinking about hurting yourself? Call or text <a href="tel:988">988</a>.
+      </p>
     </div>
   </section>
 
-  <section class="section bg-paper" style="border-block:1px solid var(--line)" aria-labelledby="how-h">
-    <div class="container">
-      <SectionHeader
-        id="how-h"
-        tag="How this guide works"
-        title="Three steps. You won't be doing them alone."
-        linkLabel="How we check information"
-        href="/about#how-we-check"
-      />
-      <div class="steptabs" data-steptabs>
-        <ul class="steptabs-list" role="tablist" aria-orientation="vertical">
-          {
-            [
-              ["Tell us what's happening", 'Choose the situation that sounds like yours, in your own words. No forms, no account.'],
-              ['See where to start', 'We show you the places that fit, and what they can actually do for you.'],
-              ['Make one call', 'Every page ends with a single next step, and what to ask when you call.'],
-            ].map(([t, s], i) => (
-              <li>
-                <button
-                  type="button"
-                  role="tab"
-                  id={`step-tab-${i}`}
-                  aria-controls={`step-panel-${i}`}
-                  aria-selected={i === 0 ? 'true' : 'false'}
-                  tabindex={i === 0 ? 0 : -1}
-                  class="steptab"
-                >
-                  <span class="steptab-num">{i + 1}</span>
-                  <span>
-                    <span class="steptab-t">{t}</span>
-                    <span class="steptab-s">{s}</span>
-                  </span>
-                </button>
-              </li>
-            ))
-          }
-        </ul>
-        <div class="steptabs-stage">
-          <div role="tabpanel" id="step-panel-0" aria-labelledby="step-tab-0" class="stage-stack">
-            <a href={link('/get-help-now')} class="situation situation-urgent">
-              <span class="situation-icon"><Icon name="alert" size={26} /></span>
-              <span class="situation-text">
-                <span class="situation-title">I need help right now</span>
-                <span class="situation-sub">Crisis lines, a safe place tonight.</span>
-              </span>
-              <Icon name="chevron-right" size={22} class="situation-arrow" />
-            </a>
-            <a href={link('/someone-i-love-is-in-jail')} class="situation">
-              <span class="situation-icon"><Icon name="family" size={26} /></span>
-              <span class="situation-text">
-                <span class="situation-title">Someone I love is in jail</span>
-                <span class="situation-sub">Find where they are and how to reach them.</span>
-              </span>
-              <Icon name="chevron-right" size={22} class="situation-arrow" />
-            </a>
-          </div>
-          <div role="tabpanel" id="step-panel-1" aria-labelledby="step-tab-1" class="stage-card" hidden>
-            {example && <ResourceCard resource={example} contextCategory="housing" />}
-          </div>
-          <div role="tabpanel" id="step-panel-2" aria-labelledby="step-tab-2" class="stage-stack" hidden>
-            {
-              example?.nextStep && (
-                <section class="next-box">
-                  <h2>What to do next</h2>
-                  <p class="next-text">{example.nextStep.text}</p>
-                  <a href={example.nextStep.href} class="btn btn-primary btn-tall">
-                    <Icon name="phone" size={18} />
-                    {example.nextStep.label}
-                  </a>
-                  <div class="next-notes">
-                    <h3>Good to know</h3>
-                    <ul>
-                      <li>Ask if you need to bring anything.</li>
-                      <li>Hours can change, so call before you go.</li>
-                    </ul>
-                  </div>
-                </section>
-              )
-            }
-          </div>
-        </div>
+  <section class="section about-guide" aria-labelledby="what-h">
+    <div class="container split">
+      <h2 id="what-h" class="split-h">
+        A free guide to getting help in Greenville and the Upstate, written in plain words.
+      </h2>
+      <div class="split-body">
+        <p class="lead">
+          We've gathered {RESOURCES.length} local organizations, from shelters and food pantries to free
+          clinics and legal aid, and put them in order by what you're going through. You don't need an
+          account, and it costs nothing.
+        </p>
+        <ol class="howto">
+          <li><span><b>Say what's happening.</b> In your own words, not a form.</span></li>
+          <li><span><b>See who can help.</b> Places that fit, and what they can do for you.</span></li>
+          <li><span><b>Make one call.</b> Every page ends with a single next step and what to ask.</span></li>
+        </ol>
+        <a href={link('/about')} class="tlink">How we check this information</a>
       </div>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="who-h">
+  <section class="section who" aria-labelledby="who-h">
     <div class="container">
-      <SectionHeader
-        id="who-h"
-        tag="Who this is for"
-        title="For anyone in the middle of something hard"
-        text="And for the people trying to help them."
-      />
-      <div class="grid grid-3">
+      <h2 id="who-h" class="who-h">For anyone in the middle of something hard, and the people trying to help them.</h2>
+      <div class="who-cols">
         {
           audiences.map((a) => (
-            <article class="aud">
-              <div class="aud-body">
-                <p class="aud-eyebrow">{a.eyebrow}</p>
-                <h3 class="aud-t">{a.title}</h3>
-                <ul class="aud-list">
-                  {a.points.map((pt) => (
-                    <li>
-                      <Icon name="check" size={16} />
-                      {pt}
-                    </li>
-                  ))}
-                </ul>
-                <a href={link(a.href)} class="btn btn-outline">
-                  {a.action} <Icon name="arrow-right" size={16} />
-                </a>
-              </div>
+            <article class="who-col">
+              <h3>{a.title}</h3>
+              <p>{a.text}</p>
+              <a href={link(a.href)} class="tlink">{a.action}</a>
             </article>
           ))
         }
@@ -299,44 +165,15 @@ const jsonLd = [
     </div>
   </section>
 
-  <section class="section-tight bg-paper" style="border-top:1px solid var(--line)" aria-labelledby="search-h">
-    <div class="container" style="display:grid;gap:1rem;justify-items:start">
-      <h2 id="search-h" style="font-size:1.6rem">Know what you're looking for?</h2>
-      <form class="searchbar" action={link('/resources')} method="get" role="search" style="width:100%">
+  <section class="section-tight find" aria-labelledby="search-h">
+    <div class="container">
+      <h2 id="search-h">Know what you're looking for?</h2>
+      <form class="searchbar" action={link('/resources')} method="get" role="search">
         <label for="home-q" class="sr-only">Search by need or organization name</label>
         <Icon name="search" size={22} class="searchbar-icon" />
-        <input id="home-q" name="q" type="search" placeholder="Search a need or a name, like “shelter” or “Triune”" autocomplete="off" />
+        <input id="home-q" name="q" type="search" placeholder="Try “shelter” or “Triune”" autocomplete="off" />
         <button type="submit" class="btn btn-primary">Search</button>
       </form>
     </div>
   </section>
-
-  <section class="section">
-    <div class="container"><CtaBand /></div>
-  </section>
 </Base>
-
-<script>
-  // Vertical tabs for "How this guide works" (design system StepTabs).
-  document.querySelectorAll<HTMLElement>('[data-steptabs]').forEach((root) => {
-    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
-    const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls')!)!);
-    const select = (i: number, focus = false) => {
-      tabs.forEach((t, n) => {
-        const on = n === i;
-        t.setAttribute('aria-selected', String(on));
-        t.tabIndex = on ? 0 : -1;
-        panels[n].hidden = !on;
-      });
-      if (focus) tabs[i].focus();
-    };
-    tabs.forEach((t, i) => {
-      t.addEventListener('click', () => select(i));
-      t.addEventListener('keydown', (e) => {
-        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
-        e.preventDefault();
-        select((i + (e.key === 'ArrowDown' ? 1 : -1) + tabs.length) % tabs.length, true);
-      });
-    });
-  });
-</script>

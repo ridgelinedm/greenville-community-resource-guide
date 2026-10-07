@@ -39,7 +39,7 @@ const description =
   'Emergency hotlines and same-day help in Greenville County: shelter tonight, food today, crisis lines, and free clinics. Call now — help is available 24/7.';
 ---
 
-<Base title={title} description={description} hideHelpButton>
+<Base title={title} description={description}>
   <div class="container page-top">
     <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Get help now' }]} />
   </div>
@@ -64,7 +64,6 @@ const description =
   <section class="section-tight bg-soft">
     <div class="container">
       <SectionHeader
-        tag="Same-day help"
         title="What do you need most right now?"
         text="Each one opens a short list of places that can help today."
       />

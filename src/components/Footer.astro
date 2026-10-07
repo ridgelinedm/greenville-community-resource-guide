@@ -1,7 +1,7 @@
 ---
 /**
  * Navy footer: logo + promise, link columns, disclaimer, and an oversized
- * wordmark sign-off. Source: design system components/navigation/SiteFooter.jsx.
+ * wordmark sign-off sized to always fit the container. Source: design system components/navigation/SiteFooter.jsx.
  */
 import Logo from './Logo.astro';
 import { RESOURCES } from '../data/resources';
@@ -49,7 +49,6 @@ const cols: [string, [string, string][]][] = [
         A free guide to help in {AREA}. Start with what is happening, and find a clear next
         step with {RESOURCES.length} local organizations.
       </p>
-      <a href={link('/get-help-now')} class="btn btn-outline footer-help">Need help now?</a>
     </div>
     {
       cols.map(([title, items]) => (
