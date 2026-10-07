@@ -62,6 +62,8 @@ export interface Resource {
   email: string | null;
   website: string | null; // raw, e.g. "uws.us"
   websiteUrl: string | null; // with protocol
+  /** True when we checked and the organization has no website of its own (CSV Website = "none"). */
+  noWebsite: boolean;
   address: string | null;
   mapUrl: string | null;
   hours: string | null;
@@ -208,10 +210,10 @@ function parsePhones(raw: string): Phone[] {
 
 function normalizeWebsite(raw: string): { website: string | null; url: string | null } {
   const v = raw.trim();
-  if (!v) return { website: null, url: null };
+  if (!v || v.toLowerCase() === 'none') return { website: null, url: null };
   const clean = v.replace(/\/+$/, '');
   const url = /^https?:\/\//i.test(clean) ? clean : `https://${clean}`;
-  const website = clean.replace(/^https?:\/\//i, '');
+  const website = clean.replace(/^https?:\/\//i, '').replace(/^www\./i, '');
   return { website, url };
 }
 
@@ -903,6 +905,7 @@ function loadResources(): Resource[] {
         email: row['Email']?.trim() || null,
         website,
         websiteUrl: url,
+        noWebsite: (row['Website'] || '').trim().toLowerCase() === 'none',
         address,
         mapUrl: address
           ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`

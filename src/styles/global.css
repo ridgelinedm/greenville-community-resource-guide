@@ -313,7 +313,7 @@ a.chip-sage:hover{color:var(--sage-700)}
 .contact-card{background:var(--paper);border-radius:var(--radius-button);padding:1.5rem}
 .contact-h{font-size:1.3rem;margin-bottom:1.1rem;padding-bottom:0.9rem;border-bottom:1px solid var(--line)}
 .contact-block{margin-bottom:1.1rem}
-.contact-label{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.92rem;font-weight:700;color:var(--slate);margin-bottom:0.4rem}
+.contact-label{display:flex;align-items:center;gap:0.4rem;font-size:0.92rem;font-weight:700;color:var(--slate);margin-bottom:0.4rem}
 .contact-label svg{color:var(--sage-600)}
 .phone-list{list-style:none;margin:0;padding:0;display:grid;gap:0.45rem}
 .phone-link{display:flex;flex-direction:column;color:var(--blue-900);text-decoration:none;font-weight:700;font-size:1.08rem}
@@ -322,7 +322,9 @@ a.chip-sage:hover{color:var(--sage-700)}
 .contact-text{color:var(--ink);font-size:0.95rem;margin-bottom:0.3rem}
 .contact-ext{display:inline-flex;align-items:center;gap:0.35rem;color:var(--blue-700);text-decoration:none;font-weight:600;font-size:0.95rem}
 .contact-ext:hover{text-decoration:underline}
-.contact-ext.break{word-break:break-all}
+.contact-ext.break{display:inline;overflow-wrap:anywhere}
+.contact-ext.break svg{display:inline;vertical-align:-2px;margin-left:0.3rem}
+.contact-none{color:var(--slate);font-size:0.95rem}
 
 /* Numbered first steps */
 .first-steps{list-style:none;margin:1rem 0 0;padding:0;display:grid;gap:0.85rem}
