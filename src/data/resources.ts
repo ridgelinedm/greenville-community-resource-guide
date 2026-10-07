@@ -62,8 +62,6 @@ export interface Resource {
   email: string | null;
   website: string | null; // raw, e.g. "uws.us"
   websiteUrl: string | null; // with protocol
-  /** True when we checked and the organization has no website of its own (CSV Website = "none"). */
-  noWebsite: boolean;
   address: string | null;
   mapUrl: string | null;
   hours: string | null;
@@ -118,6 +116,9 @@ export interface Audience {
   matchers: string[]; // substrings searched within each Serves token
   icon: string;
   blurb: string; // empathetic framing used on intent pages
+  /** Page heading and lead, reused by the matching population category. */
+  heading?: string;
+  lead?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -210,7 +211,7 @@ function parsePhones(raw: string): Phone[] {
 
 function normalizeWebsite(raw: string): { website: string | null; url: string | null } {
   const v = raw.trim();
-  if (!v || v.toLowerCase() === 'none') return { website: null, url: null };
+  if (!v) return { website: null, url: null };
   const clean = v.replace(/\/+$/, '');
   const url = /^https?:\/\//i.test(clean) ? clean : `https://${clean}`;
   const website = clean.replace(/^https?:\/\//i, '').replace(/^www\./i, '');
@@ -529,6 +530,16 @@ export const CATEGORIES: Category[] = [
     lead: 'Free computers and internet, job-search help, and a warm place to be.',
   },
 ];
+
+// Population categories (Re-entry, Veterans, Youth) have no wording of their
+// own; they use their audience's, so their hub pages never render an empty <h1>.
+for (const c of CATEGORIES) {
+  const aud = c.population && AUDIENCES.find((a) => a.key === c.population);
+  if (aud) {
+    c.heading ||= aud.heading ?? c.label;
+    c.lead ||= aud.lead ?? c.intro;
+  }
+}
 
 const CATEGORY_BY_KEY = new Map(CATEGORIES.map((c) => [c.key, c]));
 const CATEGORY_BY_SLUG = new Map(CATEGORIES.map((c) => [c.slug, c]));
@@ -905,7 +916,6 @@ function loadResources(): Resource[] {
         email: row['Email']?.trim() || null,
         website,
         websiteUrl: url,
-        noWebsite: (row['Website'] || '').trim().toLowerCase() === 'none',
         address,
         mapUrl: address
           ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
@@ -959,9 +969,10 @@ function describeNextStep(r: Resource, meta: Meta | undefined): NextStep | null 
     };
   }
   if (r.websiteUrl) {
+    const where = /facebook\.com/i.test(r.websiteUrl) ? 'Facebook page' : 'website';
     return {
-      text: meta?.nextStep ?? 'Visit their website to see how to get help.',
-      label: 'Visit their website',
+      text: meta?.nextStep ?? `Visit their ${where} to see how to get help.`,
+      label: `Visit their ${where}`,
       href: r.websiteUrl,
       kind: 'website',
       custom: Boolean(meta?.nextStep),

@@ -226,17 +226,15 @@ if (resource.hours) orgSchema.openingHours = resource.hours;
           )
         }
         {
-          !resource.noWebsite && (
+          resource.websiteUrl && (
             <div class="contact-block">
-              <span class="contact-label"><Icon name="external" size={16} /> Website</span>
-              {resource.websiteUrl ? (
-                <a href={resource.websiteUrl} target="_blank" rel="noopener" class="contact-ext break">
-                  {resource.website}<Icon name="external" size={14} />
-                  <span class="sr-only">(opens in a new tab)</span>
-                </a>
-              ) : (
-                <p class="contact-none">We don't have the link for this one.</p>
-              )}
+              <span class="contact-label">
+                <Icon name="external" size={16} /> {/facebook\.com/i.test(resource.websiteUrl) ? 'Facebook' : 'Website'}
+              </span>
+              <a href={resource.websiteUrl} target="_blank" rel="noopener" class="contact-ext break">
+                {resource.website}<Icon name="external" size={14} />
+                <span class="sr-only">(opens in a new tab)</span>
+              </a>
             </div>
           )
         }
