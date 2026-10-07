@@ -18,6 +18,8 @@ export default defineConfig({
     '/hiv-aids-support/': '/medical-care/',
     '/immigrant-latino-services/': '/resources/',
     '/resource/hispanic-alliance/': '/resources/',
+    // Removed 2026-10: no contact details; the LiveWell Greenville food guide covers it.
+    '/resource/online-food-resource-guide/': '/resource/livewell-greenville-food-resource-guide/',
     '/food-assistance/hiv/': '/food-assistance/',
     '/food-assistance/lgbtq/': '/food-assistance/',
     '/food-assistance/spanish-speaking/': '/food-assistance/',

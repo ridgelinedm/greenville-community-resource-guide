@@ -599,11 +599,6 @@ const EXCLUDED = new Set(['Hispanic Alliance']);
 const HIDDEN_SERVES = ['LGBTQ+', 'Transgender', 'Non-Binary', 'Spanish Speaking', 'AIDS/HIV'];
 
 const META: Record<string, Meta> = {
-  'Online Food Resource Guide': {
-    categories: ['food'],
-    description:
-      'A directory of food pantries, soup kitchens, and free-meal sites across Greenville County.',
-  },
   'Greenville County Human Relations': {
     categories: ['legal', 'housing'],
     description:
