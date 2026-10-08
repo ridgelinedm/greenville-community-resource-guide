@@ -1,0 +1,31 @@
+---
+/**
+ * A Greenville place photo with its place name underneath. Astro resizes it
+ * and serves AVIF/WebP with a JPEG fallback. Credits live on the About page.
+ */
+import { Picture } from 'astro:assets';
+import type { Photo } from '../data/photos';
+
+interface Props {
+  photo: Photo;
+  /** Layout width hint for the browser, e.g. "(min-width: 900px) 520px, 100vw". */
+  sizes?: string;
+  /** Load right away (above the fold) instead of lazily. */
+  eager?: boolean;
+  class?: string;
+}
+const { photo, sizes = '(min-width: 900px) 560px, 100vw', eager = false, class: className } = Astro.props;
+---
+
+<figure class:list={['photo', className]}>
+  <Picture
+    src={photo.src}
+    alt={photo.alt}
+    formats={['avif', 'webp']}
+    widths={[480, 800, 1120, 1600]}
+    sizes={sizes}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : 'auto'}
+  />
+  <figcaption>{photo.place}</figcaption>
+</figure>

@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import CtaBand from '../components/CtaBand.astro';
+import Photo from '../components/Photo.astro';
+import { PHOTOS } from '../data/photos';
 import { RESOURCES } from '../data/resources';
 import { link } from '../utils/url';
 import { SITE_NAME, AREA } from '../consts';
@@ -22,6 +24,7 @@ const description = `How ${SITE_NAME} works: a free guide to ${RESOURCES.length}
         {SITE_NAME} is a free guide for neighbors in {AREA}. You start with what is happening,
         and it helps you find a clear next step.
       </p>
+      <Photo photo={PHOTOS.about} eager sizes="(min-width: 900px) 780px, 100vw" class="about-photo" />
     </div>
   </section>
 
@@ -71,6 +74,24 @@ const description = `How ${SITE_NAME} works: a free guide to ${RESOURCES.length}
         can fix it. You can also call <a href="tel:211">211</a> any time to reach a real person
         who knows local resources.
       </p>
+    </section>
+
+    <section class="journey-section" id="photo-credits">
+      <h2>Photo credits</h2>
+      <p>
+        The photos are real places in Greenville, shared on Wikimedia Commons under open
+        licenses. Some are cropped to fit the page.
+      </p>
+      <ul class="credits">
+        {
+          Object.values(PHOTOS).map((p) => (
+            <li>
+              <a href={p.source}>{p.place}</a> by {p.author},{' '}
+              <a href={p.licenseUrl}>{p.license}</a>
+            </li>
+          ))
+        }
+      </ul>
     </section>
   </div>
 

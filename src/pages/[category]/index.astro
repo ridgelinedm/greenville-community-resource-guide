@@ -6,6 +6,8 @@ import ResourceList from '../../components/ResourceList.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import SectionHeader from '../../components/SectionHeader.astro';
 import CrisisLines from '../../components/CrisisLines.astro';
+import Photo from '../../components/Photo.astro';
+import { photoFor } from '../../data/photos';
 import {
   activeCategories,
   resourcesInCategory,
@@ -29,6 +31,7 @@ interface Props {
   category: Category;
 }
 const { category } = Astro.props;
+const photo = photoFor(category.key);
 const resources = resourcesInCategory(category.key);
 const isCrisisCategory = category.key === 'mental-health' || category.key === 'housing';
 
@@ -69,12 +72,15 @@ const jsonLd = {
   </div>
 
   <section class="cat-head">
-    <div class="container cat-head-inner">
-      <span class="situation-icon" aria-hidden="true"><Icon name={category.icon} size={30} /></span>
-      <div>
-        <h1>{category.heading}</h1>
-        <p class="lead">{category.lead}</p>
+    <div class="container cat-head-grid">
+      <div class="cat-head-inner">
+        <span class="situation-icon" aria-hidden="true"><Icon name={category.icon} size={30} /></span>
+        <div>
+          <h1>{category.heading}</h1>
+          <p class="lead">{category.lead}</p>
+        </div>
       </div>
+      {photo && <Photo photo={photo} eager sizes="(min-width: 900px) 460px, 100vw" class="cat-photo" />}
     </div>
   </section>
 

@@ -6,6 +6,8 @@
  */
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
+import Photo from '../components/Photo.astro';
+import { PHOTOS } from '../data/photos';
 import { RESOURCES } from '../data/resources';
 import { SITE_NAME, SITE_DESCRIPTION, AREA } from '../consts';
 import { link, absolute } from '../utils/url';
@@ -132,9 +134,12 @@ const jsonLd = [
 
   <section class="section about-guide" aria-labelledby="what-h">
     <div class="container split" data-reveal>
-      <h2 id="what-h" class="split-h">
-        A free guide to getting help in Greenville and the Upstate, written in plain words.
-      </h2>
+      <div>
+        <h2 id="what-h" class="split-h">
+          A free guide to getting help in Greenville and the Upstate, written in plain words.
+        </h2>
+        <Photo photo={PHOTOS.home} class="split-photo" />
+      </div>
       <div class="split-body">
         <p class="lead">
           We've gathered {RESOURCES.length} local organizations, from shelters and food pantries to free
