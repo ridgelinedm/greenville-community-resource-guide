@@ -245,4 +245,34 @@ const routes = NEEDS.map((n) => {
       if (e.target === dlg) close();
     });
   }
+
+  // The curl tucks small while the page is scrolling (so it never sits on
+  // top of what someone is reading) and while the footer is on screen.
+  const curl = document.querySelector<HTMLElement>('.curl');
+  const footer = document.querySelector('.site-footer');
+  if (curl) {
+    let scrolling = false;
+    let atFooter = false;
+    let timer = 0;
+    const sync = () => curl.classList.toggle('is-tucked', scrolling || atFooter);
+    addEventListener(
+      'scroll',
+      () => {
+        scrolling = true;
+        sync();
+        clearTimeout(timer);
+        timer = window.setTimeout(() => {
+          scrolling = false;
+          sync();
+        }, 700);
+      },
+      { passive: true },
+    );
+    if (footer) {
+      new IntersectionObserver(([e]) => {
+        atFooter = e.isIntersecting;
+        sync();
+      }).observe(footer);
+    }
+  }
 </script>

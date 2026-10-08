@@ -702,3 +702,62 @@ h3{letter-spacing:-0.012em}
 html.js [data-reveal]{opacity:0;transform:translateY(12px);transition:opacity 0.6s var(--ease-out),transform 0.6s var(--ease-out)}
 html.js [data-reveal].is-in{opacity:1;transform:none}
 }
+
+/* ---- Taste pass: inner pages ---- */
+/* Narrow pages share the logo's left edge instead of floating mid-page */
+.container.container-narrow{margin-left:max(0px,calc((100% - var(--container)) / 2))}
+
+/* Gray slabs become plain sections under a hairline */
+.bg-soft,.bg-paper,.bg-sage{background:var(--bg);border-top:1px solid var(--line)}
+
+/* Resource lists read as rows: who they are | what they do | what to do next.
+   Below 980px each row stacks. */
+.grid-3:has(.rcard){grid-template-columns:1fr;row-gap:0;border-top:1px solid var(--blue-900)}
+.grid-3 .rcard{border-top:0;border-bottom:1px solid var(--line);padding-block:1.4rem 1.2rem}
+.grid-3 .rcard-body{padding-top:0}
+.rcard-name{letter-spacing:-0.018em}
+.rcard-more{display:inline;line-height:1.5}
+.rcard-more svg{display:inline;vertical-align:-3px;margin-left:0.3rem}
+@media (min-width:980px){
+.grid-3 .rcard{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,5fr) minmax(0,3.4fr);grid-template-rows:auto auto 1fr;gap:0 clamp(1.5rem,3vw,3rem);padding-block:1.75rem}
+.grid-3 .rcard-body{display:contents}
+.grid-3 .rcard-tags{grid-column:1;grid-row:1}
+.grid-3 .rcard-name{grid-column:1;grid-row:2;font-size:clamp(1.3rem,1.1rem + 0.6vw,1.6rem);margin:0}
+.grid-3 .rcard-facts{grid-column:2;grid-row:1 / span 3}
+.grid-3 .rcard-next{grid-column:3;grid-row:1 / span 3;align-self:start;padding:0}
+}
+
+/* Crisis lines: ruled rows, no tinted tiles */
+.crisis{border-top-width:2px}
+.crisis-list{gap:0 2rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
+.crisis-card{background:none;border-radius:0;padding:0.85rem 0 0.9rem;border-bottom:1px solid var(--line)}
+.crisis-card:hover{background:none}
+.crisis-card:hover .crisis-number{text-decoration:underline;text-underline-offset:4px}
+.crisis.compact .crisis-list{gap:0 1.5rem}
+
+/* Resource detail: the next step and contact sit under rules, not in boxes */
+.next-box,.contact-card{background:none;border-radius:0;border-top:2px solid var(--blue-900);padding:1.1rem 0 0}
+.next-notes{border-top-color:var(--line)}
+.contact-h{font-size:1.2rem}
+
+/* Get help now: the needs list reuses the homepage index */
+.section-head h2{letter-spacing:-0.025em}
+
+/* ---- Page curl, refined ----
+   Fixed size, scaled with transform (no layout work). Tucks small while you
+   scroll and over the footer, springs back when you stop. The flap is shaded
+   like paper bending, and casts a soft shadow on the page underneath. */
+.curl{--c:164px;--s:1;width:var(--c);height:var(--c);transform:scale(var(--s));transform-origin:100% 100%;transition:transform 0.45s var(--ease-out);animation:curl-in 0.8s 0.6s var(--ease-out) backwards}
+.curl:hover,.curl:focus-visible{--c:164px;--s:1.14}
+@keyframes curl-in{from{transform:scale(0)}}
+.curl-under{background:linear-gradient(135deg,rgba(8,22,36,0.55) 50%,rgba(8,22,36,0) 63%),var(--blue-900)}
+.curl-flap{background:linear-gradient(135deg,#ffffff 0%,#f6f8fa 22%,#e7ecf1 38%,#cfd8e1 46%,#aebccb 49.4%,transparent 50%)}
+.curl-label{transition:opacity 0.25s ease}
+.curl.is-tucked{--s:0.5}
+.curl.is-tucked .curl-label{opacity:0}
+.curl.is-tucked:hover,.curl.is-tucked:focus-visible{--s:1.14}
+.curl.is-tucked:hover .curl-label,.curl.is-tucked:focus-visible .curl-label{opacity:1}
+@media (max-width:560px){.curl{--c:112px}.curl:hover{--c:112px;--s:1}}
+/* Tucked over the footer, so it needs far less room than before */
+.site-footer{padding-bottom:5.5rem}
+@media (max-width:560px){.site-footer{padding-bottom:4.5rem}}

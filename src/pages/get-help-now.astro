@@ -62,25 +62,24 @@ const description =
   </section>
 
   <section class="section-tight bg-soft">
-    <div class="container">
+    <div class="container container-narrow">
       <SectionHeader
         title="What do you need most right now?"
         text="Each one opens a short list of places that can help today."
       />
-      <div class="grid grid-4">
+      <ul class="index">
         {
-          quick.map((q) => (
-            <a href={link(`/${q.slug}`)} class="quick-card">
-              <span class="quick-icon"><Icon name={q.icon} size={26} /></span>
-              <span class="quick-title">{q.title}</span>
-              <span class="quick-text">{q.text}</span>
-              <span class="quick-link">
-                See resources <Icon name="arrow-right" size={16} />
-              </span>
-            </a>
+          quick.map((q, i) => (
+            <li style={`--i:${i}`}>
+              <a href={link(`/${q.slug}`)} class="index-row">
+                <span class="index-t">{q.title}</span>
+                <span class="index-s">{q.text}</span>
+                <span class="index-go" aria-hidden="true"><Icon name="arrow-right" size={22} /></span>
+              </a>
+            </li>
           ))
         }
-      </div>
+      </ul>
     </div>
   </section>
 
