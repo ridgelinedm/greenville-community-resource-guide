@@ -44,6 +44,7 @@ const ogImage = image.startsWith('http') ? image : absolute(origin, image);
 <!doctype html>
 <html lang="en">
   <head>
+    <script is:inline>document.documentElement.classList.add('js')</script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href={link('/favicon.svg')} type="image/svg+xml" />
@@ -74,7 +75,7 @@ const ogImage = image.startsWith('http') ? image : absolute(origin, image);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=Atkinson+Hyperlegible:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=Atkinson+Hyperlegible:wght@400;700&display=swap"
       rel="stylesheet"
     />
 
@@ -88,5 +89,21 @@ const ogImage = image.startsWith('http') ? image : absolute(origin, image);
     </main>
     <Footer />
     <Guide />
+    <script>
+      // Quiet scroll entry: sections fade up once as they reach the viewport.
+      // Content is visible without JS (the hidden state is scoped to html.js).
+      const items = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            e.target.classList.add('is-in');
+            io.unobserve(e.target);
+          }
+        },
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      items.forEach((el) => io.observe(el));
+    </script>
   </body>
 </html>

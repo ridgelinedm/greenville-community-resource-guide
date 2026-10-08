@@ -80,55 +80,58 @@ const jsonLd = [
 
 <Base title={`${SITE_NAME}: Find help in Greenville, SC and the Upstate`} bareTitle jsonLd={jsonLd}>
   <section class="hero" aria-labelledby="hero-h">
-    <div class="container">
-      <p class="hero-where">
-        <Icon name="map-pin" size={18} />
-        Free help in <strong>Greenville, South Carolina</strong> and the Upstate
-      </p>
-      <h1 id="hero-h" class="hero-h">What's happening?</h1>
-      <p class="hero-lead">Pick the one that sounds like you. We'll show you who can help and what to do next.</p>
+    <div class="container hero-grid">
+      <div class="hero-intro">
+        <p class="hero-where">
+          <Icon name="map-pin" size={18} />
+          Free help in <strong>Greenville, South Carolina</strong> and the Upstate
+        </p>
+        <h1 id="hero-h" class="hero-h">What's happening?</h1>
+        <p class="hero-lead">Pick the one that sounds like you. We'll show you who can help and what to do next.</p>
+        <p class="hero-danger">
+          In danger? Call <a href="tel:911">911</a>. Thinking about hurting yourself? Call or text <a href="tel:988">988</a>.
+        </p>
+      </div>
 
-      <ol class="index">
-        {
-          situations.map((s) => (
-            <li>
-              <a href={link(s.href)} class:list={['index-row', { 'index-urgent': s.urgent }]}>
-                <span class="index-t">{s.title}</span>
-                <span class="index-s">{s.text}</span>
-                <span class="index-go" aria-hidden="true"><Icon name="arrow-right" size={22} /></span>
-              </a>
-            </li>
-          ))
-        }
-        <li>
-          <button type="button" class="index-row index-guide" data-guide-open aria-haspopup="dialog">
-            <span class="index-t">I'm not sure what I need</span>
-            <span class="index-s">Answer 3 quick questions</span>
-            <span class="index-go" aria-hidden="true"><Icon name="arrow-right" size={22} /></span>
-          </button>
-        </li>
-      </ol>
+      <div class="hero-pick">
+        <ol class="index">
+          {
+            situations.map((s, i) => (
+              <li style={`--i:${i}`}>
+                <a href={link(s.href)} class:list={['index-row', { 'index-urgent': s.urgent }]}>
+                  <span class="index-t">{s.title}</span>
+                  <span class="index-s">{s.text}</span>
+                  <span class="index-go" aria-hidden="true"><Icon name="arrow-right" size={22} /></span>
+                </a>
+              </li>
+            ))
+          }
+          <li style={`--i:${situations.length}`}>
+            <button type="button" class="index-row index-guide" data-guide-open aria-haspopup="dialog">
+              <span class="index-t">I'm not sure what I need</span>
+              <span class="index-s">Answer 3 quick questions</span>
+              <span class="index-go" aria-hidden="true"><Icon name="arrow-right" size={22} /></span>
+            </button>
+          </li>
+        </ol>
 
-      <p class="needline">
-        <span class="needline-lead">Or, I need</span>
-        {
-          needs.map((n, i) => (
-            <>
-              <a href={link(n.href)}>{n.label}</a>
-              {i < needs.length - 1 && <span class="needline-sep" aria-hidden="true">/</span>}
-            </>
-          ))
-        }
-      </p>
-
-      <p class="hero-danger">
-        In danger? Call <a href="tel:911">911</a>. Thinking about hurting yourself? Call or text <a href="tel:988">988</a>.
-      </p>
+        <p class="needline">
+          <span class="needline-lead">Or, I need</span>
+          {
+            needs.map((n, i) => (
+              <>
+                <a href={link(n.href)}>{n.label}</a>
+                {i < needs.length - 1 && <span class="needline-sep" aria-hidden="true">/</span>}
+              </>
+            ))
+          }
+        </p>
+      </div>
     </div>
   </section>
 
   <section class="section about-guide" aria-labelledby="what-h">
-    <div class="container split">
+    <div class="container split" data-reveal>
       <h2 id="what-h" class="split-h">
         A free guide to getting help in Greenville and the Upstate, written in plain words.
       </h2>
@@ -149,15 +152,17 @@ const jsonLd = [
   </section>
 
   <section class="section who" aria-labelledby="who-h">
-    <div class="container">
+    <div class="container" data-reveal>
       <h2 id="who-h" class="who-h">For anyone in the middle of something hard, and the people trying to help them.</h2>
       <div class="who-cols">
         {
           audiences.map((a) => (
             <article class="who-col">
               <h3>{a.title}</h3>
-              <p>{a.text}</p>
-              <a href={link(a.href)} class="tlink">{a.action}</a>
+              <div>
+                <p>{a.text}</p>
+                <a href={link(a.href)} class="tlink">{a.action}</a>
+              </div>
             </article>
           ))
         }
